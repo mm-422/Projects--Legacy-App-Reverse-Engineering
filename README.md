@@ -1,64 +1,54 @@
-# Slickball 3D – Authentication Mechanism Analysis
-### Overview
+# Revealing The Story 🕮
+> A reverse engineering project demonstrating the importance of behavioral analysis.
 
-This project documents a reverse engineering analysis of the authentication mechanism used by Slickball 3D, an abandoned legacy game that relied on a CD-key–based activation system. The original authentication servers and publisher are no longer operational, leaving the software permanently locked in trial mode.
+### Overview ˙⋆✮
+This project documents a thorough analysis of an early-2000s era application and its components by way of _**Reverse Engineering.**_ Aspects such as the authentication mechanism, file integrity checks, UI construction and more will be covered.
 
-The goal of this project was not to distribute cracked binaries or bypass licensing protections for modern software, but to analyze and understand how a legacy authentication design functioned, identify its weaknesses, and demonstrate reverse engineering methodology in a controlled, ethical scope.
+The goal is to demonstrate how crucial it is to properly understand an _**application's behavior**_ and intended design _**before**_ applying any technical step and/or methodology.
 
-This repository serves as a technical case study in binary analysis, authentication logic tracing, and flaw identification within deprecated software systems.
+The legacy application in question is a video game that was primarily distributed on Windows circa early to mid 2000s. This game implemented custom routines and file validation mechanisms in order to fight off tampering.
 
-### Project Goals
-- Analyze the structure and behavior of a legacy CD-key authentication mechanism
-- Reverse engineer authentication logic without source code
-- Identify design flaws and implementation weaknesses
-- Demonstrate practical reverse engineering workflow and tooling
-- Produce clear documentation suitable for technical review
+But as we'll see later, once we uncover "the story" of any particular application, its inner workings and even "secrets" will become clear to see. Doubly so for an app that doesn't strictly require _**server-side**_ authentication and/or authorization.
 
-### Scope & Ethical Considerations
-- The target software is abandonware with no active licensing infrastructure
-- No cracked executables or key generators are distributed
-- No proprietary assets beyond what is necessary for analysis are included
-- The project focuses on understanding mechanisms, not enabling piracy
-- Any demonstrations or findings are presented at a conceptual and educational level.
+While the original servers and publisher are no longer operational, for the sake of ethics, the exact name of this application and images of its components will be obfuscated as necessary.
+Hence, the video game app will be referred to as "Puzzleball 3D".<br><br>
 
-### Technical Summary
-This analysis involved:
-- Static and dynamic analysis of a Windows Portable Executable (PE)
-- Tracing authentication-related execution paths
-- Identifying validation logic and trust assumptions
-- Observing how the application handled key verification failures
-- Evaluating security weaknesses common to legacy software
+###  ֎ Project Goals
+- Analyze the structure and behavior of legacy authentication and integrity mechanisms.
+- Reverse engineer authentication logic with no source code or documentation.
+- Demonstrate weaponization potential and relevant phase in a typical kill chain framework.<br><br>
 
-The authentication mechanism relied on locally verifiable logic rather than a secure, server-backed trust model, making it susceptible to analysis and manipulation.
+###  ֎ Scope & Ethical Considerations
+- This project focuses on understanding mechanisms and applying methodology.
+- This project _**DOES NOT**_ distribute material that could encourage piracy.
+- The app for this project is available on the Internet Archive and other "abandonware sites".
+- No KeyGen or hacktool creation is demonstrated.
+- Any examples of weaponization potential is done under an educational lens.<br>
+<sup>_They won't really work in modern secured systems anyway!_</sup><br><br>
 
-### Tooling & Environment
-Tools used during this project include (but are not limited to):
-- Disassemblers and debuggers
-- Windows process inspection tools
-- Hex editors and binary inspection utilities
-- Virtualized analysis environment
+###  ֎ Technical Summary
+- Observed application behavior with regard to user input.
+- Performed static & dynamic analysis on both the main .EXE and an auxiliary DLL.
+- Investigated file integrity checks within app's code.
+- Identified validation logic and performed bypass.
+- Evaluated security weaknesses and weaponization potential.<br><br>
 
-Specific tooling details are documented separately to keep the README focused and readable.
+###  ֎ Tools Used
+- Disassembler ➠ Ghidra & x64dbg
+- Primary Debugger ➠ WinDbg
+- Process Inspection ➠ Procmon & Spy++
+- Auxiliary Tools
+    - HxD for editing hex.
+    - PE-bear for quick string searches.
+    - Detect-It-Easy for app properties.<br>
+- _All testing was performed in a controlled Windows 10 22H2 VM._<br><br>
 
-### Key Learnings
-Legacy authentication systems often relied on weak trust assumptions
-- Client-side validation introduces inherent security risks
-- Reverse engineering is as much about methodology as technical skill
-- Clear documentation significantly improves analysis quality and reproducibility
+###  ֎ My Takeaways
+- Most if not all client-side validation is "doomed" with modern analysis and debugging tools.
+- Reverse engineering should be about understanding behavior and intent first.
+- Clear documentation helps tremendously with prolonged debugging sessions.
+- Design oversights and security mistakes seen in a 20-year old app can still be seen today.<br><br>
 
-### Why This Project Matters
-Reverse engineering abandoned or legacy software provides valuable insight into:
-- Historical security practices
-- Common design mistakes in authentication systems
-- How attackers analyze real-world binaries
-- Why modern security models evolved the way they did
-
-This project demonstrates skills directly applicable to red team, malware analysis, and application security roles.
-
-### Disclaimer
+###  ֎ Disclaimer
 This repository is provided for educational and research purposes only.
 No responsibility is taken for misuse of the information contained herein.
-
-### Author
-(Your name / handle here)
-Cybersecurity practitioner with a focus on reverse engineering, web exploitation, and offensive security.
