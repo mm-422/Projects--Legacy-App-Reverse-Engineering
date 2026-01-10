@@ -49,6 +49,6 @@ Hence, the video game app will be referred to as "Puzzleball 3D".<br><br>
 - Clear documentation helps tremendously with prolonged debugging sessions.
 - Design oversights and security mistakes seen in a 20-year old app can still be seen today.<br><br>
 
-###  ֎ Disclaimer
+### Disclaimer ⚠️
 This repository is provided for educational and research purposes only.
 No responsibility is taken for misuse of the information contained herein.
