@@ -2,7 +2,7 @@
 > A reverse engineering project demonstrating the importance of behavioral analysis.
 
 ### Overview ˙⋆✮
-This project documents a thorough analysis of an early-2000s era application and its components by way of _**Reverse Engineering.**_ Aspects such as the authentication mechanism, file integrity checks, UI construction and more will be covered.
+This project documents a thorough analysis of an early-2000s era application and its components by way of _**Reverse Engineering.**_ Aspects such as the authentication mechanism, file integrity checks, UI construction and more are covered.
 
 The goal is to demonstrate how crucial it is to properly understand an _**application's behavior**_ and intended design _**before**_ applying any technical step and/or methodology.
 
@@ -16,7 +16,7 @@ Hence, the video game app will be referred to as "Puzzleball 3D".<br><br>
 ###  ֎ Project Goals
 - Analyze the structure and behavior of legacy authentication and integrity mechanisms.
 - Reverse engineer authentication logic with no source code or documentation.
-- Demonstrate weaponization potential and relevant phase in a typical kill chain framework.<br><br>
+- Illustrate weaponization potential and relevant phases in a typical kill chain framework.<br><br>
 
 ###  ֎ Scope & Ethical Considerations
 - This project focuses on understanding mechanisms and applying methodology.
@@ -40,12 +40,12 @@ Hence, the video game app will be referred to as "Puzzleball 3D".<br><br>
 - Auxiliary Tools
     - HxD for editing hex.
     - PE-bear for quick string searches.
-    - Detect-It-Easy for app properties.<br>
+    - Detect-It-Easy for app property inspection.<br>
 - _All testing was performed in a controlled Windows 10 22H2 VM._<br><br>
 
 ###  ֎ My Takeaways
 - Most if not all client-side validation is "doomed" with modern analysis and debugging tools.
-- Reverse engineering should be about understanding behavior and intent first.
+- Reverse engineering should focus on understanding behavior and intent first.
 - Clear documentation helps tremendously with prolonged debugging sessions.
 - Design oversights and security mistakes seen in a 20-year old app can still be seen today.<br><br>
 
