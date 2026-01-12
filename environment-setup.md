@@ -12,7 +12,7 @@ Below are the environment details along with the specific settings applied.
 - [VM DESKTOP IMG]
 
 ## Resources
-- Allocated 4 logical cores (Ryzen 7 5700X) and 8GB of memory to Virtual Machine.
+- Allocated 4 logical cores (Zen 3 CPU) and 8GB of memory to Virtual Machine.
 - This was sufficient for up to 3 instances of Ghidra + 1 instance of WinDbg simultaneously.
 
 ## Files & File Paths
