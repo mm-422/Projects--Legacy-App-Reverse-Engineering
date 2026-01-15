@@ -1,16 +1,24 @@
-# Prologue
+# PROLOGUE
+> A summary of the approach and initial goal.
 
-## Reasoning
-I initially set out on this project in order to tackle what I thought at the time was one of the hardest branches of cybersecurity. Programming and application "hacking" was something I didn't think I could delve into but fortunately, after a couple of failures, I managed to achieve all the goals when I first set out on tackling this project.
+## My reasoning...
+I set out to tackle a challenging branch of cybersecurity - reverse engineering - with a "real" application. Not just a simple "crackme" or "tutorial program". I wanted to build some confidence in this area of security which isn't widely taught. And while it did take some grit to weather the first couple of failures, I eventually achieved all the goals I had for this project.
 
-I didn't want to just reverse engineer a simple "crackme" or a "tutorial app". I wanted to tackle something real in order to build confidence in this area of cybersecurity. I was reminded of some abandonware applications that I recently came across and picked one of them to begin experimenting.
+## Some history...
+Puzzleball 3D is a video game that was distributed on the Windows platform in the early 2000s. A free trial version was made available that used an activation mechanism based on CD-keys.
 
-Puzzleball 3D is a video game for the Windows platform from the early 2000s. I remember this era being rife with "cracks" and "keygens" for unlocking full versions of applications. Puzzleball 3D was no exception. However, some time around 2009, the publisher had modified their launcher implementation to fight keygens and fortify their code from tampering.
+I distinctly remember this era of computing being rife with "cracks" and "keygens" which were methods used to circumvent this type of copy protection and enable piracy. Puzzleball 3D was no exception. An old keygen for this app (no longer functional) can still be found on the internet.
 
-A new keygen or crack was not made for Puzzleball 3D as it wasn't really worth anyone's time or effort. And so it was forever locked into trial mode unless you could somehow locate an older version. This is partly what lured me to pick this app for the project. I could learn reverse engineering and bring something back from a lost era back to full functionality.
+The publisher for Puzzleball 3D held rights over numerous other titles and implemented a custom "launcher" to unify all their products under one banner. This launcher was dependent on an external and proprietary DLL file that implemented extra validation routines to fight against code tampering.
 
-I do want to reiterate that no "cracks" or binaries were distributed throughout this project. The goal is and was always to teach myself reverse engineering while also restoring functionality to an old "antique" video game.
+Some time in 2009, the app publisher made an update to this DLL file that broke all available keygens. Not too long after, they went out of business, leaving games like Puzzleball 3D permanently locked behind that launcher.
 
-Puzzleball 3D implemented an activation mechanism that was similar to systems utilizing CD-keys to enable full functionality. But as we'll see later, there is more than meets the eye. While I set my sights on decoding the activation mechanism, thinking it would lead to an easy "bit flip", the application would reveal later on how the devs went about implementing a custom, "secondary" validation routine contained in the proprietary DLL that acted much like a security guard for the main application.
+## A goal based on assumptions...
+Part of the reason why I chose Puzzleball 3D for this project was the thought that I'd be able to restore an "antique" piece of video game history back to full functionality while also gaining real, practical experience with using RE tools.
 
-I will detail my journey and the steps/methodology performed in three parts. The first two will demonstrate the pitfalls and deadends. The last part will showcase the importance of understanding app behavior before leading to success.
+I set my eyes on decoding the activation mechanism first, thinking that it would be a simple "bit flip". It was not until much later that I realized the need to change my approach from the more conventional route to something that would be more appropriate for an application put together more than 20 years ago, with no documentation for it whatsoever available.
+
+## Let's go!
+The first two parts will detail my initial attempts at trying to "break open" the application to see how it worked. The final part will demonstrate what finally worked and how I eventually got to that part.
+
+I do want to reiterate that the purpose of this project is not to promote piracy. No "cracks" or tools to circumvent general copy protection is made available. Everything was performed under an educational lens.
