@@ -1,24 +1,34 @@
 # PROLOGUE
-> A summary of the approach and initial goal.
+> A summary of the reasoning and approach.
 
-## My reasoning...
-I set out to tackle a challenging branch of cybersecurity - reverse engineering - with a "real" application. Not just a simple "crackme" or "tutorial program". I wanted to build some confidence in this area of security which isn't widely taught. And while it did take some grit to weather the first couple of failures, I eventually achieved all the goals I had for this project.
+## Motivation
+I wanted to explore reverse engineering - an often challenging area of cybersecurity - through a real-world application rather than a purpose-built "crackme" or tutorial-style test program.
 
-## Some history...
-Puzzleball 3D is a video game that was distributed on the Windows platform in the early 2000s. A free trial version was made available that used an activation mechanism based on CD-keys.
+Initially, the goal was to deconstruct a target application in order to understand its components ie. activation mechanism, validation routines etc.
 
-I distinctly remember this era of computing being rife with "cracks" and "keygens" which were methods used to circumvent this type of copy protection and enable piracy. Puzzleball 3D was no exception. An old keygen for this app (no longer functional) can still be found on the internet.
+While the early attempts were met with failure, I was able to refine my ability to reason about the intended design behind the target application and strengthen my proficiency with the relevant tools and methodology with each iteration.
 
-The publisher for Puzzleball 3D held rights over numerous other titles and implemented a custom "launcher" to unify all their products under one banner. This launcher was dependent on an external and proprietary DLL file that implemented extra validation routines to fight against code tampering.
+## Historical Context
+Puzzleball 3D is a Windows-based video game released in the early 2000s, with a free trial that relied on CD-keys for activation; a typical mechanism for the time.
 
-Some time in 2009, the app publisher made an update to this DLL file that broke all available keygens. Not too long after, they went out of business, leaving games like Puzzleball 3D permanently locked behind that launcher.
+This period of software distribution was also rife with "cracks" and "keygens", which were tools designed to circumvent and/or bypass legacy copy protection and enable piracy.
 
-## A goal based on assumptions...
-Part of the reason why I chose Puzzleball 3D for this project was the thought that I'd be able to restore an "antique" piece of video game history back to full functionality while also gaining real, practical experience with using RE tools.
+The publisher for Puzzleball 3D - who also held rights over numerous other titles - implemented a custom launcher tied to a proprietary DLL file in order to unify all their offerings under a single banner. The DLL file also contained validation and integrity checks in order to resist tampering. This became the target for "crackers".
 
-I set my eyes on decoding the activation mechanism first, thinking that it would be a simple "bit flip". It was not until much later that I realized the need to change my approach from the more conventional route to something that would be more appropriate for an application put together more than 20 years ago, with no documentation for it whatsoever available.
+However, in 2009, an update to the DLL rendered existing keygens and bypass methods non-functional. Not long after, the publisher also ceased operations, leaving video games like Puzzleball 3D locked in a permanent "free trial state".
 
-## Let's go!
-The first two parts will detail my initial attempts at trying to "break open" the application to see how it worked. The final part will demonstrate what finally worked and how I eventually got to that part.
+## Initial Assumptions
+One reason I chose Puzzleball 3D for this project was the assumption that its "archaic" activation mechanism would likely be relatively simple to analyze and even overcome with a "bit flip" or conditional check modification.
 
-I do want to reiterate that the purpose of this project is not to promote piracy. No "cracks" or tools to circumvent general copy protection is made available. Everything was performed under an educational lens.
+I initially approached the problem with techniques and methodology that would've been more suited to modern applications, which while a lot more secure, are also standardized.
+
+It was only after repeated failure that I realized the need to reassess my approach. Aside documentation and symbols being absent, the application reflected design patterns and considerations that were specific to its era.
+
+For example, simple assets for the launcher like text preceding an input field were copied multiple times into memory instead of being "pulled straight from the disk". This may seem inefficient by today's standards but to preserve good user experience, the original developers likely made this tradeoff as hard drives back then were relatively slow. This complicated analyis methods like tracing user input and decoding integrity checks, as will be demonstrated in a later part.
+
+## Structure of This Analysis
+The following sections document the entire process in stages:
+- First two phases outline the intial approaches and why they failed.
+- Final phase details the path that ultimately succeeded.
+
+This project is presented strictly for educational purposes. No cracks, activation keys, or hack tools intended on enabling piracy are provided.
