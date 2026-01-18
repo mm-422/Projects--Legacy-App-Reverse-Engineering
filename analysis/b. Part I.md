@@ -73,4 +73,4 @@ All that I could ascertain from this summarized view of FUN_10018172 is that if 
 
 While it may seem obvious that dynamic analysis should be utilized to uncover the real purpose of FUN_10018172, I actually burnt myself out at this point at trying to essentially draw blood from a stone, and deemed this first part a "failure".
 
-This however, did not stop me from taking an entirely different approach as will be detailed in Part 2.
+This however, did not stop me from stepping back and taking an entirely different approach, as will be detailed in Part 2.
