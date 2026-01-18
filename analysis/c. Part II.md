@@ -5,15 +5,16 @@ If we looked closer to examine the name of the function alone, the word "unittes
 In software programming, "unit testing" is a method for verifying if individual components of an application are working as expected. In this case, the "unittest_ValidateUnlockCode" function block is likely tied to ensuring that user input validation (like an unlock key) executes as expected.
 
 This does not necessarily mean that the same function is also used for validating "real" user input from the main application. Often times, it is good practice to design isolated code blocks that can be automated for unit testing.
-
-But as we will see later, this isn't always the case with Puzzleball 3D.<br><br>
+But as we will see later, this isn't always the case with Puzzleball 3D.<br>
 
 ## New Approach
 > GOAL: Verify validity of unittest_ValidateUnlockCode.
 
-Determining the relevancy of "unittest_ValidateUnlockCode" is not something that could be done through static analysis alone and typically requires "stepping through code" with a debugging tool. To do this, I used x64dbg to set a memory breakpoint on "unittest_ValidateUnlockCode", and then proceeded to go through the game activation process.
+Determining the relevancy of "unittest_ValidateUnlockCode" is not something that could be done through static analysis alone and typically requires "stepping through code" with a debugging tool.
 
-If the memory breakpoint is triggered, then we could revisit the function with a different approach. Otherwise, we would need to follow the user input to the function or routine that actually performs the activation or validation step.
+To do this, I used x64dbg to set a memory breakpoint on "unittest_ValidateUnlockCode", and then proceeded to go through the game activation process on Puzzleball 3D's launcher menu.
+
+If the memory breakpoint was triggered, then we could revisit the function with a different approach. Otherwise, we would need to trace the user input to the function that actually performs the activation or validation step.
 
 ## x64dbg Testing
-Setting a breakpoint in x64dbg can be done by first navigating to the 
+Setting a memory breakpoint in x64dbg can be done through the "Symbols" tab. I selected the 
