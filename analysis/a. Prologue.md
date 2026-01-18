@@ -35,7 +35,7 @@ As outlined in the introductory README, the overall plan (initially at least) is
   _Initial Recon_ ➟ _Static Analysis_ ➟ _Dynamic Analysis_ ➟ _Summarize & Document_
 
 The sections in this analysis phase will be divided into several stages:
-- First two parts outline the intial approaches and why they failed.
-- Final part details the path that ultimately succeeded.
+- Parts I and II outline the intial approaches and why they failed.
+- Part III details the path that ultimately succeeded.
 
 This project is presented strictly for educational purposes. No cracks, activation keys, or hack tools intended on enabling piracy are provided.
