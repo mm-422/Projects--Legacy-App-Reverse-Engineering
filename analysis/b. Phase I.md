@@ -51,4 +51,26 @@ The routine seems to begin with some processing applied to the arguments supplie
 A new value for cVar1 is derived from the processing involving the function FUN_1000180d1 before being compared against '\0' at the end which is likely a null byte.
 
 To understand this routine better, I went a layer deeper to observe the assembly view as shown in Ghidra:<br>
-[VALIDATE UNLOCK UNITTEST FUNCTION IMG]
+[VALIDATE UNLOCK UNITTEST FUNCTION IMG]<br>
+
+Beginning from the top, we see that the ECX register's value is pushed twice onto the stack instead of space being made by subtracting the value in the ESP register. This could just be a form of compiler optimization.
+
+We also see that the function, FUN_1007ccbd, is applied in a consistent manner to both param_1 and param_2. Another function towards the end, FUN_1007cdca, also seems to run in this way. It could be reasoned that the former is some sort of "preparation step" and the latter is a "finishing step". These are likely not where the core logic for the activation mechanism is found.
+
+Delving deeper into function FUN_1007ccbd, we see a nested set of blocks that divide the assembly into several sections.<br>
+[FUN 1007CCBD IMG]
+
+Attempting to decode this part of the parent function, unittest_ValidateUnlockCode, without any dynamic analysis took an immense amount of time. Suffice to say, this function essentially allocates memory space to load the variables and arguments in a state to be processed by the following functions found in unittest_ValidateUnlockCode like FUN_10018172 and FUN_100180d1.
+
+The presence of standard C library functions like _strlen, _strncpy, as well as operator_new (found within FUN_1007ebe0) are the biggest giveaways.
+
+Backing out of FUN_1007ccbd and moving onto FUN_10018172, we see a routine that is even more convoluted:<br>
+[FUN 10018172 IMG]
+
+Attempting to decode this function was a mammoth task that ultimately wasn't feasible, largely due to unknown items like the values for "DAT_100dc868" and "DAT_100dc86c" as well as the numerous amount of nested functions.
+
+All that I could ascertain from this summarized view of FUN_10018172 is that if the argument param_2 contains a character 'F', then further processing is applied. Otherwise, function would skip to the end and proceed to the next routine in the parent function, unittest_ValidateUnlockCode, which would be function FUN_100180d1.
+
+While it may seem obvious that dynamic analysis should be utilized to uncover the real purpose of FUN_10018172, I actually burnt myself out at this point at trying to essentially draw blood from a stone, and deemed this first part a "failure".
+
+This however, did not stop me from taking an entirely different approach as will be detailed in Part 2.
