@@ -9,7 +9,7 @@ Below are the environment details along with the specific settings applied.
 - Set up Windows 10 22H2 64-bit through VirtualBox version 7.2.4.r170995.
 - Puzzleball 3D was likely designed for Windows XP 32-bit.
 - However, replicating the exact OS env is not necessary for the goals of this project.
-- [VM DESKTOP IMG]
+<img width="1280" height="720" alt="VM DESKTOP" src="https://github.com/user-attachments/assets/78035289-022b-4aff-8589-c7b2672860eb" />
 
 ## Resources
 - Allocated 4 logical cores (Zen 3 CPU) and 8GB of memory to Virtual Machine.
@@ -20,7 +20,6 @@ Below are the environment details along with the specific settings applied.
 - Installed Puzzleball 3D in default directory under "Program Files (x86)".
 - Duplicated Puzzleball 3D's root directory and files to Desktop.
 - All testing and modifications to the app's binaries was performed on the files here.
-- [FILE DIRECTORY IMG]
 
 ## OS-level Settings
 - Disabled network connection.
