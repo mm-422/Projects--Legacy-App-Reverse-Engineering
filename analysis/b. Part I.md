@@ -5,33 +5,34 @@ I began the analysis by first making simple observations of the application's fe
 
 ## Initial Observations
 ### First Impressions
-Launching Puzzleball 3D from either double-clicking the main .EXE or quick start icon presents a stylized "launcher" type menu. The revision number is interestingly shown here ➠ Rev. 3744 Build 177.
+Launching Puzzleball 3D from either double-clicking the main .EXE or quick start icon presents a stylized "launcher" menu. The revision number is interestingly shown here at the bottom<br>
+➠ Rev. 3744 Build 177.<br>
+
 This was likely used for internal troubleshooting or to even help with customer support and does not appear to be relevant to the goal, considering the fact that this is a closed-source application that likely did not have a public repository with other versions made available.<br>
 
-<img width="1280" height="720" alt="Launcher Window" src="https://github.com/user-attachments/assets/c01efb99-4377-4604-b227-bd6e2035bac7" /><br>
+<img width="1280" height="720" alt="Launcher Window fixed" src="https://github.com/user-attachments/assets/878a21c3-5db1-42b9-a150-2aea369bdadf" /><br>
 
-The highlighted text indicates that the game install is "complete" in where all the required assets, data, and features are already present on the system and that it is likely only locked digitally. This is promising because it means reverse-engineering is feasible.
+The highlighted text, ``...no additional download required``, indicates that the game install is complete in where all the required assets, data, and features are already present on the system and that the trial mode applies a digital/software lock. This is promising because it means reverse-engineering is feasible.
 
 ### Exploring The Menus
 <img width="1280" height="720" alt="buttons" src="https://github.com/user-attachments/assets/6d8004b6-c7a4-4f98-b98b-1fa482416b92" />
 <br>
 
-Clicking on the "Other Games" button leads to an insecure and likely expired URL. Since the publisher's site is no longer functional (non-existent backend), exploits like SSRF and IDOR are not possible. They would require explicit permission from the server owners anyway and is something outside the scope of this project. But it is interesting to imagine how "fishing" for unlock codes stored in a database could've been a possibility.<br>
+Clicking on the ``Other Games`` button leads to an insecure and likely expired URL. Since the publisher's site is no longer functional (non-existent backend), exploits like SSRF and IDOR are not possible. They would require explicit permission from the server owners anyway and is something outside the scope of this project. But it is interesting to imagine how "fishing" for unlock codes stored in a database could've been a possibility.<br>
 
-<img width="1280" height="720" alt="insecure site" src="https://github.com/user-attachments/assets/765fa3cf-91a2-45c7-8f2a-6c644600f1b1" /><br>
+<img width="1280" height="720" alt="insecure site fixed" src="https://github.com/user-attachments/assets/03bcbe02-e329-4e69-875a-2164aeb54daa" /><br>
 
-Clicking on "Already Paid" brings forth a new window into view with 4 separate tabs.
+Clicking on ``Already Paid`` brings forth a new window into view with 4 separate tabs.
 The text here indicates that an internet connection is required to activate the game or unlock the full version. We could intercept the application's attempt at "calling back to base" and host our own server to spoof the validation process but there is far too little information (protocol, request format, etc.) at this point to go down this route.<br>
 
 <img width="1280" height="720" alt="already paid" src="https://github.com/user-attachments/assets/38ad7676-7886-4643-830f-8528bbc20c33" /><br>
 
-Clicking on "I'm not connected to the internet" renders a new screen displaying a URL and interestingly, a product code. This code doesn't seem to change with multiple restarts of the application so it is likely tied to some system property or attribute.
+Clicking on the hyperlink, ``I'm not connected to the internet``, renders a new screen displaying a URL and interestingly, a product code. This code doesn't seem to change with multiple restarts of the application so it is likely tied to some system property or attribute.
 We'll note this down for future reference.<br>
 
 <img width="1280" height="720" alt="not connected" src="https://github.com/user-attachments/assets/09fa4d07-54a2-424c-a656-d6f12651513d" /><br>
 
-Examining the URL, we see that the product code is exposed in the parameter, "pid", which likely stands for product ID. It is difficult to ascertain what "did" is.
-We'll note down this URL for reference as well.
+Going back to the dead URL, we see that the product code is also exposed as a value for the parameter, ``pid``, which likely stands for product ID. It is difficult to ascertain what ``did`` is, but we'll note down this URL for reference as well.
 
 The other tabs are simply different payment methods for what used to be the way to obtain legitimate unlock/activation codes for Puzzleball 3D. They all require a response from the payment processor's server which is well outside the scope of this project.
 
@@ -39,14 +40,23 @@ The other tabs are simply different payment methods for what used to be the way 
 After having established that reverse-engineering may be possible with Puzzleball 3D, I performed some basic static analysis using PE-bear to sift through the binary for string references and Ghidra to provide a graphical view of the functions.
 
 ### PE-bear Findings
-////
-- GlobalUnlock @ offset c6fde<br>
-- radll_GetUnlockCode @ offset c7280<br>
-- unittest_DecryptUnlockCode @ offset c73df<br>
-- unittest_ValidateUnlockCode @ offset c7553<br>
-- Action Fail Wrong Unlock Code @ offset c86f4<br>
-- Form Edit Control Containing Unlock Code @ offset c86f4<br>
-- UnlockCode @ offset c8728<br>
+Often times, the protection mechanism for an application is found in a separate binary or executable like a DLL file. This file runs in tandem with the main application and acts as a "security guard".
+
+This is why "cracks" back then came with 2 files; a **modified .EXE** executable and a **modified DLL** file, both of which you would have to copy over to the root directory of the relevant application in order to overwrite and neuter whatever protection mechanism was in place.
+
+In our case, a proprietary DLL file does exist in the root directory of Puzzleball 3D, which we'll refer to as ``RA.dll`` for both the sake of simplicity and obfuscation. The following are strings I found that stuck out the most from each binary:
+
+#### Puzzleball 3D.exe
+- 
+
+#### RA.dll
+- ``GlobalUnlock`` @ offset c6fde<br>
+- ``radll_GetUnlockCode`` @ offset c7280<br>
+- ``unittest_DecryptUnlockCode`` @ offset c73df<br>
+- ➟ ``unittest_ValidateUnlockCode`` @ offset c7553<br>
+- ``Action Fail Wrong Unlock Code`` @ offset c86f4<br>
+- ``Form Edit Control Containing Unlock Code`` @ offset c86f4<br>
+- ``UnlockCode`` @ offset c8728<br>
 
 There were of course, no hardcoded unlock codes found in the Puzzleball 3D's binary. But "unittest_ValidateUnlockCode" seemed like the most interesting place to start. Looking this up in Ghidra led to a function with that exact name.<br>
 
