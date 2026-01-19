@@ -47,55 +47,60 @@ This is why "cracks" back then came with 2 files; a **modified .EXE** executable
 In our case, a proprietary DLL file does exist in the root directory of Puzzleball 3D, which we'll refer to as ``RA.dll`` for both the sake of simplicity and obfuscation. The following are strings I found that stuck out the most from each binary:
 
 #### Puzzleball 3D.exe
-- 
+- ``radll_HasTheProductBeenPurchased`` @ offset 2aaa0
+- ``unittest_GetBrandedApplicationID`` @ offset 2ab7c
+- ``The DRM dll has been altered since it was generated and is not deemed to be secure`` @ offset 2ac70
+- ``radll_GetUnlockCode`` @ offset 2a514
 
 #### RA.dll
+- ``Decryption Key Data=A/ZTZDGDQ7YGUERNPMP3VVVT4XFWSBBL`` @ offset b8818
 - ``GlobalUnlock`` @ offset c6fde<br>
 - ``radll_GetUnlockCode`` @ offset c7280<br>
 - ``unittest_DecryptUnlockCode`` @ offset c73df<br>
 - ➟ ``unittest_ValidateUnlockCode`` @ offset c7553<br>
-- ``Action Fail Wrong Unlock Code`` @ offset c86f4<br>
+- ``Action Fail Wrong Unlock Code`` @ offset c8660<br>
 - ``Form Edit Control Containing Unlock Code`` @ offset c86f4<br>
 - ``UnlockCode`` @ offset c8728<br>
 
-There were of course, no hardcoded unlock codes found in the Puzzleball 3D's binary. But "unittest_ValidateUnlockCode" seemed like the most interesting place to start. Looking this up in Ghidra led to a function with that exact name.<br>
+Aside from the intriguing "Decryption Key Data" string in the DLL file, there were no hardcoded unlock codes found in both of the examined binaries. More importantly, the 3rd string listed under the main .EXE (@ offset 2ac70) essentially confirms that the copy protection or DRM (Digital Rights Management) is tied to the DLL file.
+
+While all of these strings looked enticing to follow, for the purposes of this project, ``unittest_ValidateUnlockCode`` seemed like the one closest to our goal of decoding the activation mechanism. Looking this up with Ghidra's search tool led to a function with that exact name.<br>
 
 ### Ghidra Findings
-- [VALIDATE UNLOCK UNITTEST FUNCTION IMG]<br>
+<img width="1280" height="720" alt="validateunlockcode func" src="https://github.com/user-attachments/assets/8036a678-83e4-42d0-aa5e-47b77beeddb4" /><br>
 
-The above is a "Ghidra representation" of the function, translated from machine code into human-readable form. It seems that there are 3 variables being declared:
+The above is a "Ghidra representation" of the function,  ``unittest_ValidateUnlockCode``, translated from machine code into human-readable form. There are 3 variables being declared:
 - cVar1, a single character data type.
 - local_c and local_8, both integer data types.<br>
 
-The routine seems to begin with some processing applied to the arguments supplied (*param_1 and *param_2) along with the aforementioned variables.
+The routine seems to begin with some processing applied to the supplied arguments (*param_1 and *param_2) along with the aforementioned variables.
 
 A new value for cVar1 is derived from the processing involving function FUN_100180d1 before being compared against '\0' at the end which is likely a null byte.
 
-To understand this routine better, I switched to the assembly view for unittest_ValidateUnlockCode in Ghidra to examine the "assembly logic"<br>
-- [VALIDATE UNLOCK UNITTEST FUNCTION IMG]<br>
+To understand this routine better, I switched to the assembly view for ``unittest_ValidateUnlockCode`` in Ghidra to examine the "assembly logic"<br>
+<img width="720" height="1280" alt="validateunlockcode assem" src="https://github.com/user-attachments/assets/866262db-c2c9-4190-9a19-ccf73ae941e3" /><br>
 
 Beginning from the top, we see that the ECX register's value is pushed twice onto the stack in place of where the ESP register's value would typically be subtracted to "make space". This could just be a form of compiler optimization.
 
-We also see that the function, FUN_1007ccbd, is applied, if you will, in a consistent manner to both param_1 and param_2. The preceding and following instructions to the function call are very similar. Another function towards the end, FUN_1007cdca, also seems to be applied in this way. It could be reasoned that the former is some sort of "preparation step" and the latter is a "finishing step".
+We also see that the function, ``FUN_1007ccbd``, is applied, if you will, in a consistent manner to both param_1 and param_2. The preceding and following instructions to the function call are very similar. Another function towards the end, ``FUN_1007cdca``, also seems to be applied in this way. It could be reasoned that the former is some sort of "preparation step" and the latter a "finishing step".
 
-These two functions are likely not where the core logic or math for the activation mechanism is located but I still thought it important to delve deeper into FUN_1007ccbd in an attempt to fully deconstruct the routine.<br>
+These two functions are likely not where the core logic or math for the activation mechanism is located but I still thought it important to delve deeper into ``FUN_1007ccbd`` in an attempt to fully deconstruct the routine.<br>
 
 #### FUNCTION 1007CCBD
-- [FUN 1007CCBD IMG]
+<img width="1280" height="720" alt="1007ccbd" src="https://github.com/user-attachments/assets/a4241188-18d7-4a69-8e79-6c54ddc8a0de" />
 
-Here we see a nested set of blocks that divide the assembly into several sections. Attempting to decode this part of the parent function, without any dynamic analysis took an immense amount of time and effort.
+Here we see a nested set of blocks that divide the assembly into several sections. Attempting to decode this without any dynamic analysis or runtime context took an immense amount of time and effort.
 
-Suffice to say, this function essentially allocates system memory to load the variables and arguments in an "expected state" before being processed by the other routines found in unittest_ValidateUnlockCode, namely FUN_10018172 and FUN_100180d1.
+Suffice to say, this function essentially allocates system memory to load the variables and arguments in an "expected state" before being processed by the other routines found in ``unittest_ValidateUnlockCode``, namely ``FUN_10018172`` and ``FUN_100180d1``.
 
-The presence of standard C library functions like _strlen, _strncpy, as well as operator_new (found within FUN_1007ebe0 in FUN_1007ccbd) are the biggest giveaways.
+The presence of standard C library functions like ``_strlen``, ``_strncpy``, as well as ``operator_new`` (found within sub-function ``FUN_1007ebe0`` in ``FUN_1007ccbd``) are the biggest giveaways.
 
 #### FUNCTION 10018172
-Backing out of FUN_1007ccbd and moving onto FUN_10018172, we see a routine that is even more convoluted:<br>
-- [FUN 10018172 IMG]
+<img width="1280" height="720" alt="10018172" src="https://github.com/user-attachments/assets/bdc224dd-b5b4-4ae8-bce3-4e7738de6ff7" />
 
-Attempting to decode this function ended up being a mammoth task, largely due to unknown items like the values for "DAT_100dc868" and "DAT_100dc86c" as well as the numerous amount of nested functions.
+Backing out of ``FUN_1007ccbd`` and moving onto ``FUN_10018172``, we see a routine that is even more convoluted. Attempting to decode this function ended up being a mammoth task, largely due to unknown items like the values for ``DAT_100dc868`` and ``DAT_100dc86c`` as well as the numerous amount of nested functions.
 
-All that I could ascertain from this summarized view of FUN_10018172 is that if the argument param_2 contains a character 'F', then further processing is applied. Otherwise, the app's workflow would skip to the end and proceed to the next routine in the parent function (unittest_ValidateUnlockCode) which would be FUN_100180d1.
+All that I could ascertain from this summarized view of ``FUN_10018172`` is that if the argument param_2 contains a character 'F', then further processing is applied. Otherwise, the app's workflow would skip to the end and proceed to the next routine in the parent function (unittest_ValidateUnlockCode) which would be ``FUN_100180d1``.
 
 ## Making A Decision
 Reverse-engineering is a process that can get quickly overwhelming if the right tools and methodology aren't applied. But as we'll see later, even that may not be enough to fully deconstruct something like Puzzleball 3D which is a minimally obfuscated yet ancient application with peculiar design philosophies.
