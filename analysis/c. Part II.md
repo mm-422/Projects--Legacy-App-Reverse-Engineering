@@ -25,12 +25,19 @@ As we've established earlier, ``ra.dll`` is the binary where the protection mech
 
 This breakpoint will then be listed under the "Breakpoints" tab in x64dbg with a "hit count" next to it to indicate the number of times the breakpoint was triggered during app runtime.
 
-Now, all that's left to do is to carry out a test to see if the hypothesis is true or false. I navigated to the sub-menu shown by the Puzzleball 3D launcher after clicking the ``Already Paid`` button, and then clicked on the hyperlink to bring me back to the window where the product key was shown along with an input field for the unlock code.
+Now, all that's left to do is to carry out a test to see if the hypothesis is true or false. I navigated to the sub-menu shown previously past the ``Already Paid`` button, then clicked on the hyperlink to bring me back to the window where the product key was displayed along with an input field for an unlock code.
 
 <img width="1280" height="720" alt="not connected" src="https://github.com/user-attachments/assets/3679889d-e5f6-488c-bb22-a96da99c0c9a" />
 
-I entered a random string of characters and clicked the ``SUBMIT`` button which then spawned a pop-up window telling me that I've entered an "unrecognized unlock code".
+I entered a random string of characters (234A) and then clicked the ``SUBMIT`` button. If the ``unittest_ValidateUnlockCode`` function was indeed tied to the activation mechanism here, then the  breakpoint set in x64dbg should have been hit and the hit counter increased by 1. It is also typical for the application being debugged to appear "frozen" or "halted" when this happens because of its execution being "held in place" so to speak by the debugger (x64dbg in this case) at the breakpoint.
+
+Unfortunately, neither of these events occurred and all I got was a pop-up window telling me that I've entered an "unrecognized unlock code".
 
 <img width="1280" height="720" alt="Unrecognized Code" src="https://github.com/user-attachments/assets/600f91fa-bf4d-460c-a0c8-37288203732d" />
 
+Now that we've confirmed that ``unittest_ValidateUnlockCode`` is not involved in the activation process and could even be vestigial code that isn't necessarily reflective of the actual math or logic used by the application for activation, we should now switch strategies and move to trace where the user input is being processed.
 
+## Recalibrating
+> GOAL: Locate the routine responsible for activation.
+
+There are several ways to approach user input tracing.
