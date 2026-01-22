@@ -6,7 +6,7 @@ In software programming, "unit testing" is a method for verifying if individual 
 
 This does not necessarily mean that the same function is also used for validating "real" user input from the main application. Often times, it is good practice to design isolated code blocks that can be automated for unit testing. But as we will see later, this isn't always the case with Puzzleball 3D.<br>
 
-## A New Approach
+## New Approach
 > GOAL: Verify validity of unittest_ValidateUnlockCode.
 
 Determining the relevancy of ``unittest_ValidateUnlockCode`` is not something that could be done through static analysis alone. To verify an application's behavior would typically require "stepping through code" with a debugging tool.
@@ -88,11 +88,19 @@ We then perform an interaction with the app - _like clicking a button_ - and the
 
 Anyway, the ``HWND`` has been identified as ``00080428``. However, pointing or clicking on any space within the launcher window (apart from the top menu bar) with the "Finder Tool" in Spy++ gives us the same ID as well.
 
-I restarted Puzzleball 3D and performed the same test. The handle changes with each run but stays constant for all elements displayed on the launcher window. This was puzzling. 
+I restarted Puzzleball 3D and performed the same test. The ``HWND`` was now ``007303BA``. It seemed that the handle changed with each run but stayed constant for all elements displayed on the launcher window. 
 
 <img width="1280" height="720" alt="spy++ inspect" src="https://github.com/user-attachments/assets/9fd7f959-e003-465a-b604-ba1f114141fb" />
 
 ## Another Curveball
+The plan was to locate the specific ``HWND`` tied to either the input field or the "SUBMIT" button, and then to trace it to the activation mechanism with x64dbg by setting a breakpoint using that ``HWND``.
 
+As the handle is shared between all elements or "windows" on the launcher, this led to a lot of frustration. Even utilizing the "Handles" tab in x64dbg to set a breakpoint on the specific hardware event listed on the Spy++ Message Window (like ``WM_LBUTTONDOWN``) led to a lot of dead ends. Almost none of the numerous message breakpoints tested were hit which led me to doubt my approach.
 
+After a bit of research, it turned out that the launcher for Puzzleball 3D is a "custom-drawn window" where elements like the buttons are "fake". They are simply graphical effects that trigger when the cursor hovers above them and are not real buttons that possess their own handle.
 
+Puzzleball 3D ran a custom routine that tracked the cursor's coordinates within the launcher window and correlated that data with events like mouse clicks in order to trigger specific functions. This tracked with the observation of the launcher being un-resizeable. This was likely done to prevent the tracking from breaking.
+
+Even attempting to locate the heart of this routine in the app's binary - _with no symbols, no breakpoints, and no documentation/reference_ - was incredibly difficult.
+
+After much frustration, I deemed this approach as another "failure" and reconsidered my options.
