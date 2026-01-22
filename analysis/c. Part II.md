@@ -72,10 +72,10 @@ A function called ``GetMessage`` within these apps runs a "Message Loop" that ke
 4. ``GetMessage`` will see this event and pass it to another function called ``DispatchMessage``, which performs a check - _tracing the ``HWND`` to the specific window like a button_ - before handing over to the corresponding window's ``WNDPROC`` or Window Procedure.
 5. ``WNDPROC`` is a "central" callback function that contains the logic for the window. This is where the execution steps following a specific event is initiated. For example, a mouse click causing a part of the app to change color or launch a new instance.
 
-Developers typically override or customize the WNDPROC function and its name to suit the intended functionality.
+Developers typically override or customize the ``WNDPROC`` function and its name to suit the intended functionality.
 
 ### ✦ Hypothesis
-If we could find the exact name of the WNDPROC implementation in Puzzleball 3D and trace the HWND of the user input field or "SUBMIT" button through the application's code, we might be able to locate the core activation mechanism.
+If we could find the exact name of the ``WNDPROC`` implementation in Puzzleball 3D and trace the ``HWND`` of the user input field or "SUBMIT" button through the application's code, we might be able to locate the core activation mechanism.
 
 ## Spy++ Testing
 We can utilize a tool called Microsoft Spy++ to easily uncover the properties of a target window such as the HWND and parent class of a button.
