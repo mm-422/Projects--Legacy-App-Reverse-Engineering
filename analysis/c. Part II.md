@@ -78,5 +78,14 @@ Developers typically override or customize the WNDPROC function and its name to 
 If we could find the exact name of the WNDPROC implementation in Puzzleball 3D and trace the HWND of the user input field or "SUBMIT" button through the application's code, we might be able to locate the core activation mechanism.
 
 ## Spy++ Testing
-We can utilize a tool called Microsoft Spy++ to discover the properties of a particular window such as HWND and parent class.
+We can utilize a tool called Microsoft Spy++ to discover the properties of a particular window such as the HWND and parent class.
+
+To do this, we simply locate the process with the application's name (Puzzleball 3D in this case) and open the Messages window. Here we can see a long list of events:
+
+<img width="1280" height="720" alt="spy++ test" src="https://github.com/user-attachments/assets/6d628381-0d40-4285-8b08-e319187d8f7d" />
+
+The application seems to run a continuous "hit test" which I didn't think too much of at the time. The reason to this will become apparent later in Part 3.
+
+Anyway, the HWND has been identified as ``00080428``. However, this ID seems to be the same for the entire launcher window apart from the top menu bar.
+
 
