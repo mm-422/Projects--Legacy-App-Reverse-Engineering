@@ -84,9 +84,9 @@ To do this, we simply locate the process with the application's name (Puzzleball
 
 <img width="1280" height="720" alt="spy++ test" src="https://github.com/user-attachments/assets/6d628381-0d40-4285-8b08-e319187d8f7d" />
 
-We then perform an interaction with the app - like clicking on a button - and then locate the corresponding event from the list. Puzzleball 3D's launcher also seems to run a continuous "hit test" as can be seen with the numerous ``WM_NCHITTEST`` messages. I didn't think too much of this at the time but the reason will become apparent in a later part.
+We then perform an interaction with the app - _like clicking on a button_ - and then locate the corresponding event from the list. Puzzleball 3D's launcher also seems to run a continuous "hit test" as can be seen with the numerous ``WM_NCHITTEST`` messages. I didn't think too much of this at the time but the reason will become apparent in a later part.
 
-Anyway, the HWND has been identified as ``00080428``. However, pointing or clicking on any space within the launcher window (apart from the top menu bar) with the inspection tool gives us the same ID.
+Anyway, the ``HWND`` has been identified as ``00080428``. However, pointing or clicking on any space within the launcher window (apart from the top menu bar) with the inspection tool gives us the same ID.
 
 
 
