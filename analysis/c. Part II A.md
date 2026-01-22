@@ -69,8 +69,8 @@ A function called ``GetMessage`` within these apps runs a "Message Loop" that ke
 
 1. You click a button, the kernel identifies the ``HWND`` of the window right beneath the mouse cursor.
 2. The OS then sends a message (``WM_LBUTTONDOWN``) along with the corresponding HWND to the app's event queue.
-4. ``GetMessage`` will see this event and pass it to another function called ``DispatchMessage``, which performs a check - _tracing the ``HWND`` to the specific window like a button_ - before handing over to the corresponding window's ``WNDPROC`` or Window Procedure.
-5. ``WNDPROC`` is a "central" callback function that contains the logic for the window. This is where the execution steps following a specific event is initiated. For example, a mouse click causing a part of the app to change color or launch a new instance.
+3. ``GetMessage`` will see this event and pass it to another function called ``DispatchMessage``, which performs a check - _tracing the ``HWND`` to the specific window like a button_ - before handing over to the corresponding window's ``WNDPROC`` or Window Procedure.
+4. ``WNDPROC`` is a "central" callback function that contains the logic for the window. This is where the execution steps following a specific event is initiated. For example, a mouse click causing a part of the app to change color or launch a new instance.
 
 Developers typically override or customize the ``WNDPROC`` function and its name to suit the intended functionality.
 
