@@ -13,7 +13,7 @@ Determining the relevancy of ``unittest_ValidateUnlockCode`` is not something th
 
 To do this, I used x64dbg to set a memory breakpoint on ``unittest_ValidateUnlockCode``, and then proceeded to go through the activation process within Puzzleball 3D's launcher menu.
 
-### Hypothesis
+### ✦ Hypothesis
 If the memory breakpoint in x64dbg is triggered, then we could revisit the function with a different approach. Otherwise, we would need to trace the user input to the function that **actually performs the activation** or validation step.
 
 ## x64dbg Testing
@@ -53,4 +53,30 @@ While some breakpoints for certain functions were hit at the startup of Puzzleba
 
 So then, if the function responsible for validating unlock codes was not one of the exported ones from the DLL file, could it be located in the main application executable? This was an assumption that I had that led me on a long and frustrating goose chase that ultimately ended with nothing substantial. After some research, I decided to try tracing the user input again but with a different method involving **Windows Messages.**
 
-Windows Messages
+### ✦ An Intro to Messages
+**Windows Messages** are units of data used to communicate events - _like mouse clicks and keyboard presses_ - between the OS and applications.
+
+Each application window in the **Windows** operating system is placed under an "Application Thread" that contains an internal queue of these events. Each event can be thought to possess a label like ``WM_LBUTTONDOWN`` for a mouse click.
+
+If this mouse click happened after a keyboard press (``WM_KEYDOWN``) for example, then you can visualize the event queue as being a chronological order like this:<br>
+> ``WM_KEYDOWN``⤵︎<br>
+> ``WM_LBUTTONDOWN``
+
+### ✦ The Message Flow
+Typically, most if not all elements in a modern app (like buttons and text boxes) are their own "windows" in that they have a unique ID or handle called an ``HWND`` (Window Handle). An example of this might be something like, ``00451233``.
+
+A function called ``GetMessage`` within these apps runs a "Message Loop" that keeps track of all these events and handles. The typical flow from user input to app output is as follows:
+
+1. You click a button, the kernel identifies the ``HWND`` of the window right beneath the mouse cursor.
+2. The OS then sends a message (``WM_LBUTTONDOWN``) along with the corresponding HWND to the app's event queue.
+4. ``GetMessage`` will see this event and pass it to another function called ``DispatchMessage``, which performs a check - _tracing the ``HWND`` to the specific window like a button_ - before handing over to the corresponding window's ``WNDPROC`` or Window Procedure.
+5. ``WNDPROC`` is a "central" callback function that contains the logic for the window. This is where the execution steps following a specific event is initiated. For example, a mouse click causing a part of the app to change color or launch a new instance.
+
+Developers typically override or customize the WNDPROC function and its name to suit the intended functionality.
+
+### ✦ Hypothesis
+If we could find the exact name of the WNDPROC implementation in Puzzleball 3D and trace the HWND of the user input field or "SUBMIT" button through the application's code, we might be able to locate the core activation mechanism.
+
+## Spy++ Testing
+We can utilize a tool called Microsoft Spy++ to discover the properties of a particular window such as HWND and parent class.
+
