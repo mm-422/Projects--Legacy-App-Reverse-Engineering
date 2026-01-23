@@ -51,6 +51,6 @@ This was another string that can be found in both the main executable and the DL
 In order to understand how Puzzleball 3D was making decisions with regard to which error dialog to show, I decided to do a breakdown analysis on the common denominator, function ``FUN_00401006``.
 The decompiled view shown in Ghidra alone is convoluted. I have broken it down to numbered blocks for easier view:
 
-<img width="893" height="673" alt="401006 decompiled" src="https://github.com/user-attachments/assets/c5d89af5-27ab-42f1-b6c7-001a12cbbee4" />
+
 
 
