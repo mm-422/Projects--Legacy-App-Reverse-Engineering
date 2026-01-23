@@ -19,12 +19,26 @@ So I looked through the root directory of Puzzleball 3D and came across a file c
 
 It should be stated here that reading and modifying data files with arbitrary extensions using a tool like Notepad is ill advised as it could lead to corruption. I knew even at the time that doing so was less than ideal, but it allowed for quickly sifting through the contents of ``Arcade.dat`` in order to locate the desired word.
 
-Changing the word "compter" to "computer" through Notepad seemed trivial, and the Puzzleball 3D's launcher even started up as expected. However, when clicking on the ``Already Paid`` button to access the sub-menu where the product key was displayed, we are presented with this error, before the application quits.
+Changing the word "compter" to "computer" through Notepad seemed trivial, and the launcher even started up as expected. However, when clicking on the ``Already Paid`` button to access the sub-menu where the product key was displayed, we are presented with this error:
 
 <img width="1280" height="720" alt="fatal not found" src="https://github.com/user-attachments/assets/c953b7e0-a388-4db8-8891-a6d615f7f5cf" />
 
-This almost confirms that some of the elements shown on the sub-menu draw from the Arcade.dat file. This also adds up with the fact that the contents of that file resemble a framework of some sort used for constructing a graphical interface.
+This essentially confirms that some if not all of the elements on the sub-menu draw from the Arcade.dat file. This also adds up with the fact that the contents of that file resemble a framework, perhaps used for constructing the launcher's graphical interface.
 
-What's interesting is that reverting the change to the word "compter", doesn't seem to fix this error message. It should also be noted that the title of the error, "Fatal File Not Found", alludes to the application keeping track of the .dat resource file in some way, perhaps an ID or hash.
+What's interesting is that reverting the word change doesn't seem to fix or undo this error. It should also be noted that the title of the error, "Fatal Not Found", alludes to the application keeping track of the .dat resource file in some way, perhaps with an internal ID or hash. Tampering with it with the Notepad edit likely caused this internal ID to change or become corrupted.
 
-The text within that error dialog box also resembles something used in a development environment for debugging purposes. Not something intended for the end-user.
+The text within that relatively large error dialog box also resembles something used in a development environment for debugging purposes. Not something intended for the end-user.
+
+## Taking A Detour
+> GOAL: Trace the File Not Found Error.<br>
+
+At this point in the project, I assumed that a validation mechanism of some sort kept track of ``Arcade.dat`` in order to detect tampering. So I searched through both the main binary and the DLL file with Ghidra for references to the error string "Fatal Not Found". I found a copy of all the text displayed in the previous dialog box in each of the binaries.
+
+<img width="1280" height="720" alt="fatal not found ghidra" src="https://github.com/user-attachments/assets/97939581-3d13-4f5d-beba-ad7728c41235" />
+
+This was an interesting bit of redundancy. But it could have just been remaining data that went uncleaned after development. So to verify which binary (if either) provided the data for the dialog box, I tried changing the string in Ghidra to see if it would show, starting with the one in the main executable.
+Doing this caused the Puzzleball 3D application to throw the following error on startup:
+
+<img width="1280" height="720" alt="CRC error" src="https://github.com/user-attachments/assets/da3c25b9-a100-4fd7-bb34-51e73c8526d9" />
+
+
