@@ -1,23 +1,23 @@
 # Part II A
-One crucial step I missed in Part I was to verify if the function, ``unittest_ValidateUnlockCode``, was even a relevant part of Puzzleball 3D's binary used during any actual code validation process ie. when inputting an unlock code and clicking submit.
+One crucial step I missed in Part I was to verify if the function, ``unittest_ValidateUnlockCode``, was even a relevant part of Puzzleball 3D's binary used during any actual code validation process ie. _when inputting an unlock code and clicking submit._
 
 If we looked closer to examine the name of the function alone, the word "unittest" here is a hint. 
 In software programming, "unit testing" is a method for verifying if individual components of an application are working as expected. In this case, the ``unittest_ValidateUnlockCode`` function block is likely tied to ensuring that user input validation (like an unlock key) executes as expected.
 
-This does not necessarily mean that the same function is also used for validating "real" user input from the main application. Often times, it is good practice to design isolated code blocks that can be automated for unit testing. But as we will see later, this isn't always the case with Puzzleball 3D.<br>
+This does not necessarily mean that the actual function used for validating real user input has a similar form to the "unit test" counterpart. Often times, it is good practice to design specific and isolated code blocks that utilize automation for unit testing. But as we will see later, this isn't always the case with Puzzleball 3D.<br>
 
 ## New Approach
 > GOAL: Verify validity of unittest_ValidateUnlockCode.
 
 Determining the relevancy of ``unittest_ValidateUnlockCode`` is not something that could be done through static analysis alone. To verify an application's behavior would typically require "stepping through code" with a debugging tool.
 
-To do this, I used x64dbg to set a memory breakpoint on ``unittest_ValidateUnlockCode``, and then proceeded to go through the activation process within Puzzleball 3D's launcher menu.
+To do this, I used x64dbg to set a memory breakpoint on ``unittest_ValidateUnlockCode``, and then proceeded to go through the activation process within Puzzleball 3D's launcher.
 
 ### ✦ Hypothesis
 If the memory breakpoint in x64dbg is triggered, then we could revisit the function with a different approach. Otherwise, we would need to trace the user input to the function that **actually performs the activation** or validation step.
 
 ## x64dbg Testing
-Setting a memory breakpoint in x64dbg can be done through the "Symbols" tab. This is where all of the modules (other libraries needed for app's functionality) are listed along with their imported and exported "symbols" which include variables, data structures, and functions.
+Setting a memory breakpoint in x64dbg can be done through the "Symbols" tab. This is where all of the modules (other libraries needed for app's functionality) are listed along with their imported and exported "symbols" which can include variables, data structures, and functions.
 
 <img width="1280" height="720" alt="x64dbg symbols" src="https://github.com/user-attachments/assets/d8a44470-7d96-4bf5-b13d-35d4b1f95dae" />
 
@@ -45,13 +45,13 @@ Now we need to find the actual activation mechanism or function responsible for 
 ## Recalibrating
 > GOAL: Locate the routine responsible for activation.
 
-At first, I tried a "brute-force" approach by setting breakpoints on all the "named" functions listed under ``ra.dll`` as exports in the Symbols tab.
+At first, I tried a "brute-force" approach by setting breakpoints on all the of "named functions" listed under ``ra.dll`` as exports in the Symbols tab.
 
-I then proceeded to repeat the activation process through the launcher menu.
+I then proceeded to repeat the activation process on the launcher.
 
 While some breakpoints for certain functions were hit at the startup of Puzzleball 3D, like even ``unittest_GetBrandedApplicationID``, the result upon clicking the submit button was the same. An "unrecognized unlock code" message box.
 
-So then, if the function responsible for validating unlock codes was not one of the exported ones from the DLL file, could it be located in the main application executable? This was an assumption that I had that led me on a long and frustrating goose chase that ultimately ended with nothing substantial. After some research, I decided to try tracing the user input again but with a different method involving **Windows Messages.**
+So then, if the function responsible for validating unlock codes was not one of the exported ones from the DLL file, could it be located in the main application executable? This was an assumption that I had that led me on a long and frustrating goose chase that ultimately ended with nothing substantial. After some research, I decided to try tracing the user input again but with a different method involving the **Windows Messages** system.
 
 ### ✦ An Intro to Messages
 **Windows Messages** are units of data used to communicate events - _like mouse clicks and keyboard presses_ - between the OS and applications.
@@ -67,15 +67,15 @@ Typically, most if not all elements in a modern app (like buttons and text boxes
 
 A function called ``GetMessage`` within these apps runs a "Message Loop" that keeps track of all these events and handles. The typical flow from user input to app output is as follows:
 
-1. You click a button, the kernel identifies the ``HWND`` of the window right beneath the mouse cursor.
-2. The OS then sends a message (``WM_LBUTTONDOWN``) along with the corresponding HWND to the app's event queue.
-3. ``GetMessage`` will see this event and pass it to another function called ``DispatchMessage``, which performs a check - _tracing the ``HWND`` to the specific window like a button_ - before handing over to the corresponding window's ``WNDPROC`` or Window Procedure.
-4. ``WNDPROC`` is a "central" callback function that contains the logic for the window. This is where the execution steps following a specific event is initiated. For example, a mouse click causing a part of the app to change color or launch a new instance.
+1. You click a button, kernel identifies the ``HWND`` of the window right beneath the mouse cursor.
+2. The OS sends a message (``WM_LBUTTONDOWN``) along with the corresponding HWND to app's event queue.
+3. ``GetMessage`` will see this event and pass it to another function called ``DispatchMessage``, which performs a check - _tracing the ``HWND`` to the specific window ie. button_ - before handing over to the corresponding window's ``WNDPROC`` or Window Procedure routine.
+4. ``WNDPROC`` is a "central" callback function that contains the **logic** for the window. This is where the execution steps following a specific event is initiated. For example, a mouse click causing a part of the app to change color or launch a new instance.
 
 Developers typically override or customize the ``WNDPROC`` function and its name to suit the intended functionality.
 
 ### ✦ Hypothesis
-If we could find the exact name of the ``WNDPROC`` implementation in Puzzleball 3D and trace the ``HWND`` of the user input field or "SUBMIT" button through the application's code, we might be able to locate the core activation mechanism.
+If we could find the exact name of the ``WNDPROC`` implementation in Puzzleball 3D and trace the ``HWND`` of the user input field or ``SUBMIT`` button through the application's binary, we might be able to locate the core activation mechanism.
 
 ## Spy++ Testing
 We can utilize a tool called Microsoft Spy++ to easily uncover the properties of a target window such as the HWND and parent class of a button.
@@ -93,14 +93,14 @@ I restarted Puzzleball 3D and performed the same test. The ``HWND`` was now ``00
 <img width="1280" height="720" alt="spy++ inspect" src="https://github.com/user-attachments/assets/9fd7f959-e003-465a-b604-ba1f114141fb" />
 
 ## Another Curveball
-The plan was to locate the specific ``HWND`` tied to either the input field or the "SUBMIT" button, and then to trace it to the activation mechanism with x64dbg by setting a breakpoint using that ``HWND``.
+The plan was to locate the specific ``HWND`` tied to either the input field or the ``SUBMIT`` button, and then to trace it to the activation mechanism in Puzzleball 3D's binary by setting a "handle breakpoint" using that ``HWND`` with x64dbg.
 
-As the handle is shared between all elements or "windows" on the launcher, this led to a lot of frustration. Even utilizing the "Handles" tab in x64dbg to set a breakpoint on the specific hardware event listed on the Spy++ Message Window (like ``WM_LBUTTONDOWN``) led to a lot of dead ends. Almost none of the numerous message breakpoints tested were hit which led me to doubt my approach.
+As the handle was shared between all elements or "windows" on Puzzleball 3D's launcher, this led to a lot of frustration. Even utilizing the "Handles" feature in x64dbg to set a breakpoint on the specific hardware event listed on the Spy++ Message Window (like ``WM_LBUTTONDOWN``) led to a lot of dead ends. Almost none of the numerous message breakpoints tested were hit.
 
-After a bit of research, it turned out that the launcher for Puzzleball 3D is a "custom-drawn window" where elements like the buttons are "fake". They are simply graphical effects that trigger when the cursor hovers above them and are not real buttons that possess their own handle.
+After a bit of research, it turned out that the launcher for Puzzleball 3D is a "custom-drawn window" where elements like the buttons are simply graphical effects that trigger when the cursor hovers above them and are not real buttons that possess their own handle. These "fake buttons" share the same ``HWND`` with the rest of the launcher window because it is not a separate element.
 
-Puzzleball 3D ran a custom routine that tracked the cursor's coordinates within the launcher window and correlated that data with events like mouse clicks in order to trigger specific functions. This tracked with the observation of the launcher being un-resizeable. This was likely done to prevent the tracking from breaking.
+Puzzleball 3D ran a custom routine that tracked the cursor's coordinates within the launcher window and correlated that data with events like mouse clicks in order to trigger specific functions. This tracked with the observation of the launcher being un-resizeable. This was likely done to prevent the tracking functionality from breaking.
 
-Even attempting to locate the heart of this routine in the app's binary - _with no symbols, no breakpoints, and no documentation/reference_ - was incredibly difficult.
+Even attempting to locate the heart of this tracking routine in the app's binary - _with no symbols, no breakpoints, and no documentation/reference_ - was incredibly difficult.
 
 After much frustration, I deemed this approach as another "failure" and reconsidered my options.
