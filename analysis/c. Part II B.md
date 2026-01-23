@@ -41,4 +41,16 @@ Doing this caused the Puzzleball 3D application to throw the following error on 
 
 <img width="1280" height="720" alt="CRC error" src="https://github.com/user-attachments/assets/da3c25b9-a100-4fd7-bb34-51e73c8526d9" />
 
+This error dialog box indicates a CRC failure, which likely meant that there was a routine checking the integrity of the main executable.
+
+I tried "tracing up" from the string shown in Ghidra bny following the XREF; in this case the string was found in function FUN_00416659. Attempting any sort of assembly modification (ex. flipping a JNZ instruction to JZ) caused the application to throw another error stating that "Game Files Are Corrupt".
+
+This was another string that can be found in both the main executable and the DLL file. I tried tracing upwards from this string as well and found a common function between the two different string references => ``FUN_00401006``
+
+#### Function 00401006
+In order to understand how Puzzleball 3D was making decisions with regard to which error dialog to show, I decided to do a breakdown analysis on the common denominator, function ``FUN_00401006``.
+The decompiled view shown in Ghidra alone is convoluted. I have broken it down to numbered blocks for easier view:
+
+<img width="893" height="673" alt="401006 decompiled" src="https://github.com/user-attachments/assets/c5d89af5-27ab-42f1-b6c7-001a12cbbee4" />
+
 
