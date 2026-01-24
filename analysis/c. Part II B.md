@@ -32,24 +32,38 @@ The text within that relatively large error dialog box also resembles something 
 ## Taking A Detour
 > GOAL: Trace the File Not Found Error.<br>
 
-At this point in the project, I assumed that a validation mechanism of some sort kept track of ``Arcade.dat`` in order to detect tampering. So I searched through both the main binary and the DLL file with Ghidra for references to the error string "Fatal Not Found". I found a copy of all the text displayed in the previous dialog box in each of the binaries.
+At this point in the project, I assumed that a validation mechanism of some sort kept track of Arcade.dat in order to detect tampering. So I searched through both the main .EXE and ra.dll with Ghidra for any references to the error string "Fatal Not Found".
+
+I ended up finding a row of defined strings in both binaries that contained all the text shown in the previous error dialog box.
 
 <img width="1280" height="720" alt="fatal not found ghidra" src="https://github.com/user-attachments/assets/97939581-3d13-4f5d-beba-ad7728c41235" />
 
-This was an interesting bit of redundancy. But it could have just been remaining data that went uncleaned after development. So to verify which binary (if either) provided the data for the dialog box, I tried changing the string in Ghidra to see if it would show, starting with the one in the main executable.
-Doing this caused the Puzzleball 3D application to throw the following error on startup:
+This was an interesting bit of redundancy. The duplicate text could just be residual data that survived post-development, in which case it would be next to meaningless for our goal.
+
+To verify if this was the case, and to see which binary (if either) provided the data for the "Fatal Not Found" dialog box, I made a slight change to that string reference in Ghidra (starting with the main .EXE) to see if it would show up the next time the error dialog was drawn.
+
+However, doing this caused Puzzleball 3D to throw the following error message on startup:
 
 <img width="1280" height="720" alt="CRC error" src="https://github.com/user-attachments/assets/da3c25b9-a100-4fd7-bb34-51e73c8526d9" />
 
-This error dialog box indicates a CRC failure, which likely meant that there was a routine checking the integrity of the main executable.
+This error indicates a CRC failure, which might point to the existence of a routine in the main .EXE that verifies its integrity.
 
-I tried "tracing up" from the string shown in Ghidra bny following the XREF; in this case the string was found in function FUN_00416659. Attempting any sort of assembly modification (ex. flipping a JNZ instruction to JZ) caused the application to throw another error stating that "Game Files Are Corrupt".
+I tried following this "CRC failed" string through the XREF shown in Ghidra and landed on the function FUN_0040283b. Attempting any sort of modification to the assembly here, or anywhere for that matter, caused the application to throw another error dialog stating that "Game Files Are Corrupt".
 
-This was another string that can be found in both the main executable and the DLL file. I tried tracing upwards from this string as well and found a common function between the two different string references => ``FUN_00401006``
+Following this string through the main executable's assembly in Ghidra landed me on a function that seemed to be a common denominator between the two errors => FUN_00401006
 
-#### Function 00401006
-In order to understand how Puzzleball 3D was making decisions with regard to which error dialog to show, I decided to do a breakdown analysis on the common denominator, function ``FUN_00401006``.
-The decompiled view shown in Ghidra alone is convoluted. I have broken it down to numbered blocks for easier view:
+#### FUNCTION 00401006
+<IMG>
+In order to understand how Puzzleball 3D was making decisions with regard to which error dialog to show, I decided to perform a full breakdown of FUN_00401006.
+
+The fact that this routine possessed numerous XREFs pointing to it hinted at it being a global initializer.
+
+Both LAB_0040102b and LAB_00401031 appeared to load data segments into registers before either returning or jumping to a different section as if prepping the app. They are likely responsible for loading resource files like Arcade.dat and populating internal structures.
+
+The first prominent function in this entire routine seems to be FUN_00401d0b which eventually leads us to the location of the error strings.
+
+#### FUNCTION 00401d0b
+This is a large function block with many sub-routines. The following is a compiled summary of the assembly code.
 
 
 
