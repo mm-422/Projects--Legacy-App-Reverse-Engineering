@@ -50,21 +50,69 @@ This error indicates a CRC (Cyclic Redundancy Check) failure of some sort, which
 
 I tried following this "CRC failed" string through the XREF shown in Ghidra and landed on the function ``FUN_0040283b``. Attempting any sort of modification to the assembly here, or anywhere for that matter, caused the application to throw another error dialog stating that "Game Files Are Corrupt".
 
-Tracing this new error through the main .EXE brought me to function that seemed to be a common denominator between the two errors => ``FUN_00401006``
+Tracing this new error through the main .EXE brought me to function that seemed to be a common denominator between the two errors ► ``FUN_00401006``
 
 #### FUNCTION 00401006
-<IMG>
-In order to understand how Puzzleball 3D was making decisions with regard to which error dialog to show, I decided to perform a full breakdown of ``FUN_00401006``.
-
-The fact that this routine possessed numerous XREFs pointing to it hinted at it being a global initializer.
-
-Both LAB_0040102b and LAB_00401031 appeared to load data segments into registers before either returning or jumping to a different section as if prepping the app. They are likely responsible for loading resource files like Arcade.dat and populating internal structures.
-
-The first prominent function in this entire routine seems to be FUN_00401d0b which eventually leads us to the location of the error strings.
-
-#### FUNCTION 00401d0b
-This is a large function block with many sub-routines. The following is a compiled summary of the assembly code.
+<img width="1280" height="720" alt="401006 assembly" src="https://github.com/user-attachments/assets/801456be-3a41-4bb9-8dc5-6da7c7403ef9" />
 
 
+In order to understand how Puzzleball 3D was making decisions with regard to which error dialog to show, I decided to perform a full breakdown of ``FUN_00401006``. The fact that this routine possessed numerous inbound XREFs hinted at it being a global initializer of some sort.
 
+Both ``LAB_0040102b`` and ``LAB_00401031`` appeared to load data segments into registers before either returning or jumping to a different section as if "prepping" the application. They are likely responsible for loading resource files like ``Arcade.dat`` and populating internal structures.
+
+The first prominent function call here seems to be ``FUN_00401d0b`` which is part of the routine chain that eventually leads us to the location of the error strings.
+
+#### FUNCTION 00401D0B
+```
+int * __fastcall FUN_00401d0b(int *param_1)
+{
+uint * _Str;
+uint *puVar1;
+size_t sVar2;
+HANDLE hFindFile;
+undefined4 uVar3;
+int *piVar4;
+CHAR local_944 [2048];
+_WIN32_FIND_DATAA local_144;
+
+FUN_004027ab((int)param_1);
+param_1[0x4c] = 0;
+param_1[2] = 0;
+param_1[3] = 0;
+GetCurrentDirectoryA(0x104,(LPSTR)(param_1 + 0x4d));
+
+FUN_00401e50();
+FUN_004025bf((int)param_1);
+_Str = (uint *)(param_1 + 9);
+FUN_00401e36((LPSTR)_Str,0x104);
+puVar1 = FUN_004170f0(_Str,&DAT_0042e510);
+while (puVar1 !=  (uint*)0x0){
+  puVar1 = FUN_004170f0(_Str,&DAT0042e510);
+  FUN_00417890(_Str,(uint*)((int)puVar1 + 1));
+  puVar1 = FUN_004170f0(_Str,&DAT_0042e510);
+}
+
+puVar1 = FUN_004170f0(_Str,&DAT_0042e50c);
+while (puVar1 != (uint*)0x0){
+  puVar1 = FUN_004170f0(_Str,&DAT_0042e50c);
+  FUN_00417890(_Str,(uint*}((int)puVar1 + 1));
+  puVar1 = FUN_004170f0(_Str,&DAT_0042e50c);
+}
+
+sVar2 = _strlen((char*)_Str);
+FUN_00417890((uint*)(sVar2 + 0x21 + (int)param_1), (uint*)&DAT_0042e508);
+hFindFile = FindFirstFileA((LPCSTR)_Str,&local_144);
+if (hFindFile == (HANDLE)0xffffffff){
+  FUN_00417890(_Str,(uint*)s_RAW_001.exe_0042e4fc);
+}
+
+FindClose(hFindFile);
+FUN_00401e36(local_944,0x800);
+FUN_004027c6(param_1,local_944);
+piVar4 = param_1 + 0x4a;
+uVar3 = FUN_004027c2((int)param_1);
+FUN_00401091(s_ReflexiveArcade\RAW_002.wdt_0042e4e0,param_1,uVar3,piVar4);
+return param_1;
+}
+```
 
