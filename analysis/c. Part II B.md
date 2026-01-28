@@ -229,8 +229,10 @@ There was only one possibility for this scenario ► Puzzleball 3D was drawing t
 
 Modifying the string here through Ghidra are once again trivial. Simply right-click on the defined string and select "Patch Data", enter the desired set of characters, and then press the "O" key for the shortcut to compile and output the DLL.
 
-However, performing this now caused Puzzleball 3D to throw a new dialog, "Application Error", on startup.
+However, performing this now caused Puzzleball 3D to throw a new error dialog on startup.
 <img width="368" height="129" alt="dll app error" src="https://github.com/user-attachments/assets/fde27c52-dd43-445f-a3e8-892112680302" />
 
+Restoring the original DLL binary allowed the app to launch normally again, which meant the existence of another "check" for the loading routine for ``ra.dll``.
 
->GOAL: 
+>GOAL: Modify the app to allow for modded DLL.
+
