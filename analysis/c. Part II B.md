@@ -111,11 +111,126 @@ FUN_00401e36(local_944,0x800);
 FUN_004027c6(param_1,local_944);
 piVar4 = param_1 + 0x4a;
 uVar3 = FUN_004027c2((int)param_1);
-FUN_00401091(s_ReflexiveArcade\RAW_002.wdt_0042e4e0,param_1,uVar3,piVar4);
+FUN_00401091(s_RA\RAW_002.wdt_0042e4e0,param_1,uVar3,piVar4);
 return param_1;
 }
 ```
 
 The above is the decompiled view of ``FUN_00401D0B`` as presented in Ghidra. Decoding the assembly for this routine was a long and arduos task. So, for the sake of brevity, I will skip the full analysis and list down the most important findings.
 
-At this point of the project, ``FUN_00401D0B`` seemed like an initializer for integrity checks relating to "file corruption". It starts by gathering directory and module names and attempts to locate files like RAW_001.exe and RAW_002.wdt
+At this point of the project, ``FUN_00401D0B`` seemed like an initializer for integrity checks relating to file corruption. It starts by gathering directory and module names and attempts to locate files\binaries like ``RAW_001.exe`` and ``RAW_002.wdt``, the former being an existing file in the root directory of Puzzleball 3D. Interestingly, ``RAW_002.wdt`` was not a file that existed anywhere on the system (root, Documents, Local App Data, etc.) and may have been a "fall back" for if ``RAW_001.exe`` was not found.
+
+The call to function ``FUN_00401091`` which is found under ``FUN_00401DEB`` is likely what leads to the construction of the "Game Files Are Corrupt" error dialog.
+
+By using x64dbg, I was able to determine that with the current modifications done to Puzzleball 3D's binary, the app took the path towards ``FUN_004027C6`` which is presumed to be a wrapper for the "CRC fail" error. This is our next point of examination.
+
+#### FUNCTION 004027C6
+```
+**FUN_004027C6**
+undefined4 __thiscall FUN_004027C6 (void * this, LPCSTR param_1)
+assume FS_OFFSET=0xffdff000
+
+undefined4  EAX:4  <RETURN>
+void *  ECX:4(auto)  this
+LPCSTR  Stack[0x4]:4  param_1
+
+PUSH EDI
+MOV EDI,this
+CMP dword ptr [EDI+0x4],0x0
+JNZ LAB_0040282A
+PUSH ESI
+CALL FUN_00402830
+PUSH dword ptr [ESP+param_1]
+PUSH EAX
+CALL FUN_0040283B
+POP this
+MOV ESI,PTR_s_RA\RAW_003.wdt_0042E6C0
+POP this
+MOV this,dword ptr [PTR_s_RA\RAW_003.wdt_0042E6C0]
+JMP LAB_004027FC
+
+
+**LAB_004027EE**
+PUSH this=>s_RA\RAW_003.wdt_0042EB70
+PUSH EAX
+CALL FUN_0040283B
+POP this
+ADD ESI,0x4
+POP this
+MOV this,dword ptr [ESI]=>DAT_0042E6C4
+
+
+**LAB_004027FC**
+TEST this,this
+JNZ LAB_004027EE
+MOV this,dword ptr [PTR_s_RA\Background.jpg_0042E6C8]
+MOV ESI,PTR_s_RA\Background.jpg_0042E6C8
+JMP LAB_0040281B
+
+
+**LAB_0040280D**
+PUSH this=>s_RA\Background.jpg_0042EB50
+PUSH EAX
+CALL FUN_00402913
+POP this
+ADD ESI,0x4
+POP this
+MOV this,dword ptr [ESI]=>PTR_s_RA\button_normal.jpg_0042e6cc
+
+
+**LAB_0049281B**
+TEST this,this
+JNZ LAB_0040280D
+PUSH EAX
+CALL FUN_00402834
+POP this
+MOV dword ptr [EDI+0x4],EAX
+POP ESI
+
+
+**LAB_0040282A**
+MOV AL,0x1
+POP EDI
+RET 0x4
+```
+
+This function is quite evidently loading a "list" of items into memory with references to asset files like ``RAW_003.wdt``,``background.jpg`` and ``button_normal.jpg``. Some of these resources are used when drawing the custom launcher window.
+
+Functions ``FUN_0040283B`` and ``FUN_00402913`` are called to perform some processing on those assets before the call to ``FUN_00402834`` which returns a result that is stored in ``[EDI+0x4]``, then moved to the EAX register just before the final RET instruction.
+
+This result may be the value that indicates the expected or computed "CRC state".
+
+### ✦ Hypothesis
+Since ``FUN_004027C6`` seems to compute some sort of hash or value based on a "static list" of items and then stores this result in ``EDI+4``, and then in EAX, before it gets passed back to the parent, ``FUN_00401D0B``, theoretically, editing the value of EAX right before the last step, to something matching an original and untampered version of the main executable, should allow us to bypass the "Game File Are Corrupt" check.
+
+## WinDbg Testing
+I first needed to observe the expected value in the EAX register at the right moment. To do this, I set a memory breakpoint at address ``00402826``, which was the start of ``FUN_00402834`` (called under ``LAB_0049281B`` as can be seen above) through WinDbg with the command ► ``bp 00402826``
+
+The value contained in the EAX register at this moment was ``5C1D48A2``. I noted this down and relaunched Puzzleball 3D, this time with the "modified" version of the executable that threw out the CRC errors.
+<img width="780" height="222" alt="EAx mod" src="https://github.com/user-attachments/assets/3dc13070-5d00-40c6-8fd5-fe83df72f6e7" />
+
+I changed the ``MOV EAX, dword ptr [ESP + param_1]`` line to instead move an explicit value (``5C1D48A2``) into the EAX register with the following instruction ► ``MOV EAX,0x5C1D48A2``
+
+I then "nullified" the following line by changing ``NOT EAX`` to a simple ``NOP`` instruction.
+
+This then returned the expected value in EAX right before the call to function ``FUN_00401091`` in ``FUN_00401D0B``.
+
+After performing this modification, the application launched normally through the modified main .EXE and we are now free to make alterations to that executable without tripping any integrity checks. It was now time to check the launcher's sub-menu again and examine the typo.
+
+## Back On Track
+With the CRC and "corruption" checks neutered, we could now load the version of Puzzleball 3D's executable with the edited strings to see if the "Fatal Not Found" error dialog reflected anything different.
+<img width="711" height="470" alt="same error" src="https://github.com/user-attachments/assets/83ebc6f6-2742-433d-aeec-99ca69fffdfe" />
+
+Unfortunately, the error dialog seems unchanged. Modifying any of the string elements here that are found in the main .EXE doesn't break the application now but the changes don't seem to be reflected for some reason. I tried restarting the VM in order to eliminate the possibility of caching but that did not change the result.
+
+There was only one possibility for this scenario ► Puzzleball 3D was drawing the text elements from another source. The DLL file,``ra.dll``, was the next likely culprit. It contained an exact copy of all the strings found in the error in almost the exact order in its binary.
+
+<img width="896" height="793" alt="dll fatal not found" src="https://github.com/user-attachments/assets/b6c8e6cb-37cf-45ba-8fb8-f6af92f2dc28" />
+
+Modifying the string here through Ghidra are once again trivial. Simply right-click on the defined string and select "Patch Data", enter the desired set of characters, and then press the "O" key for the shortcut to compile and output the DLL.
+
+However, performing this now caused Puzzleball 3D to throw a new dialog, "Application Error", on startup.
+<img width="368" height="129" alt="dll app error" src="https://github.com/user-attachments/assets/fde27c52-dd43-445f-a3e8-892112680302" />
+
+
+>GOAL: 
