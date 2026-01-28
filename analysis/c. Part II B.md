@@ -116,3 +116,6 @@ return param_1;
 }
 ```
 
+The above is the decompiled view of ``FUN_00401D0B`` as presented in Ghidra. Decoding the assembly for this routine was a long and arduos task. So, for the sake of brevity, I will skip the full analysis and list down the most important findings.
+
+At this point of the project, ``FUN_00401D0B`` seemed like an initializer for integrity checks relating to "file corruption". It starts by gathering directory and module names and attempts to locate files like RAW_001.exe and RAW_002.wdt
