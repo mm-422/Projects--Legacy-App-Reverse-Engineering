@@ -221,18 +221,49 @@ After performing this modification, the application launched normally through th
 With the CRC and "corruption" checks neutered, we could now load the version of Puzzleball 3D's executable with the edited strings to see if the "Fatal Not Found" error dialog reflected anything different.
 <img width="711" height="470" alt="same error" src="https://github.com/user-attachments/assets/83ebc6f6-2742-433d-aeec-99ca69fffdfe" />
 
-Unfortunately, the error dialog seems unchanged. Modifying any of the string elements here that are found in the main .EXE doesn't break the application now but the changes don't seem to be reflected for some reason. I tried restarting the VM in order to eliminate the possibility of caching but that did not change the result.
+Unfortunately, the error dialog seems unchanged. Modifying any of the string elements here that are found in the main .EXE doesn't break the application now but the changes don't seem to be reflected for some reason. I tried restarting the VM in order to eliminate any possibility of the app or OS maintaing a cache for the launcher's elements but this did not change the result either.
 
-There was only one possibility for this scenario ► Puzzleball 3D was drawing the text elements from another source. The DLL file,``ra.dll``, was the next likely culprit. It contained an exact copy of all the strings found in the error in almost the exact order in its binary.
+There was only one possibility I could think of for this scenario ► Puzzleball 3D was drawing the text elements from another source. The DLL file,``ra.dll``, was the next likely culprit. It contained an exact copy of all the strings found in the error in almost the exact order in its binary.
 
 <img width="896" height="793" alt="dll fatal not found" src="https://github.com/user-attachments/assets/b6c8e6cb-37cf-45ba-8fb8-f6af92f2dc28" />
 
-Modifying the string here through Ghidra are once again trivial. Simply right-click on the defined string and select "Patch Data", enter the desired set of characters, and then press the "O" key for the shortcut to compile and output the DLL.
+Modifying the strings here through Ghidra is once again trivial. Simply right-click on the defined string and select "Patch Data", enter the desired set of characters, and then press the "O" key for the shortcut to compile and output the modified DLL.
 
 However, performing this now caused Puzzleball 3D to throw a new error dialog on startup.
 <img width="368" height="129" alt="dll app error" src="https://github.com/user-attachments/assets/fde27c52-dd43-445f-a3e8-892112680302" />
 
-Restoring the original DLL binary allowed the app to launch normally again, which meant the existence of another "check" for the loading routine for ``ra.dll``.
+The message displayed here is quite generic in that there were no codes or detailed information to go off of. I did however notice a new log file generated in Puzzleball 3D's root directory called ``RA Error.txt`` right after the error above. Opening it to examine the contents revealed the following:
+<img width="1280" height="720" alt="DRM dll altered" src="https://github.com/user-attachments/assets/83965227-c508-494b-b766-cedf586fc681" />
+
+This essentially confirmed the existence of another "internal check" for the DLL's integrity. I double-confirmed this by restoring the original DLL file, which allowed the app to launch normally again. We now had to neuter this DLL validation mechanism as well before being able to proceed further.
 
 >GOAL: Modify the app to allow for modded DLL.
 
+Bypassing the DLL integrity check was a much more convoluted process than bypassing the one in the main .EXE, with assembly instruction patches leading to various assertion failures, application crashes, and even seemingly obvious "bit flip" opportunities actually causing Puzzleball 3D to freeze before a fatal error.
+
+For the sake of brevity, I will skip to the exact sub-routine in the main .EXE where the mechanism for verifying the DLL's integrity was found. This was done by first searching for the string "There was an error initializing the application. It will now exit", that was shown in the previous dialog box, which eventually led me to a function called ``FUn_004076C1``.
+
+Decoding this required plenty of trial-and-error and "app behavior comparisons" between the original ``ra.dll`` file and a tampered one through extensive use of WinDbg. Below is the breakdown.
+
+#### FUNCTION 004076C1
+<img width="526" height="338" alt="4076c1" src="https://github.com/user-attachments/assets/b0229320-aecd-4269-bcd2-6e8d021e978d" />
+
+``LAB_004076C1`` is a sub-routine of the parent function, ``FUN_004075C0`` which performs specific checks on different parts of the application. ``LAB_004076C1`` seemed tied to Puzzleball 3D's DRM functionality.
+
+Examining the first function call here to ``FUN_00407160``, I discovered that it invoked modules such as ``CryptImportKey``, ``CryptHashData``, and ``MS Base Cryptographic Provider v1.0`` which are all cryptography related functions. This was a telling sign that ``FUN_004076C1`` was indeed responsible for verifying the intgrity of the DLL.
+
+Delving into the process of attempting to crack the above hashing algorithms may have been an even more daunting task. But if we look closer at the above sub-rountine, we can see that there is a TEST intruction right before a jump or JNZ, and critically, a call to the ``Kernel32.dll`` module for the FreeLibrary function. This likely meant that the call to ``FUN_00407160`` with all its crypto-related modules only served to perform hash and signature related functions on ``ra.dll`` and the process of rejecting or unloading the actual DLL was performed farther down the assembly.
+
+### ✦ Hypothesis
+<img width="1280" height="720" alt="patching JNZ" src="https://github.com/user-attachments/assets/8d061906-e3c0-4ede-be42-6d94d3a62325" />
+
+Patching the assembly here to return an expected non-zero value right before the JNZ instruction to "counter" it might be sufficient.
+
+## Performing Memory Patch with WinDbg
+I first set a memory breakpoint at the address ``004076d0`` which was right before the ``TEST EAX,EAX`` instruction. I then performed a "live register injection" by passing the following command into WinDbg ► ``r eax=1``
+
+Injecting this non-zero value was sufficient to force the application to take the path to ``LAB_00407701`` where routines were ran to initialize the DLL as if it was a genuine, untampered binary.
+
+But this "live patch" was not very practical, and so I proceeded to create a more permanent workaround by modifying the instruction at ``004076D0`` in ``LAB_004076C1`` from ``AND EAX,0xff`` to ``MOV EAX,0x1``. This was better than simply changing JNZ to JMP as an improper EAX value might adversely affect the application's flow down the line.
+
+Fortunately, this patch was sufficient for the application to once again resume regular functionality. We could now move back to modifying ``Arcade.dat`` and attempt to fix the typo.
