@@ -266,4 +266,4 @@ Injecting this non-zero value was sufficient to force the application to take th
 
 But this "live patch" was not very practical as it required repeating the steps each time Puzzleball 3D was launched. So I proceeded to create a more permanent workaround by modifying the instruction at ``004076D0`` in ``LAB_004076C1`` from ``AND EAX,0xff`` to ``MOV EAX,0x1``. This was better than simply changing the nearby JNZ to a JMP as an improper EAX value might adversely affect the application's flow down the line.
 
-Fortunately, this patch was sufficient for the application to once again resume regular functionality. We could now move back to modifying ``Arcade.dat`` and attempt to fix the typo.
+Fortunately, this patch was sufficient for the application to once again resume regular functionality. We could now move back to modifying ``Arcade.dat`` and attempt to fix the typo in the next part.
