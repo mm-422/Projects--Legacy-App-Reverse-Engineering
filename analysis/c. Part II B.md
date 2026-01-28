@@ -257,13 +257,13 @@ Delving into the process of attempting to crack the above hashing algorithms may
 ### ✦ Hypothesis
 <img width="1280" height="720" alt="patching JNZ" src="https://github.com/user-attachments/assets/8d061906-e3c0-4ede-be42-6d94d3a62325" />
 
-Patching the assembly here to return an expected non-zero value right before the JNZ instruction to "counter" it might be sufficient.
+Patching the assembly here to return an expected non-zero value right before the JNZ instruction might be sufficient. This might force the application's flow to "escape" the following lines of assembly in this sub-routine that unload the DLL and move to contruct the error message found in the log file.
 
-## Performing Memory Patch with WinDbg
+## Register Injection with WinDbg
 I first set a memory breakpoint at the address ``004076d0`` which was right before the ``TEST EAX,EAX`` instruction. I then performed a "live register injection" by passing the following command into WinDbg ► ``r eax=1``
 
-Injecting this non-zero value was sufficient to force the application to take the path to ``LAB_00407701`` where routines were ran to initialize the DLL as if it was a genuine, untampered binary.
+Injecting this non-zero value was sufficient to force the application to take the path to ``LAB_00407701`` where instructions were executed to initialize the DLL as if it were a genuine, untampered binary.
 
-But this "live patch" was not very practical, and so I proceeded to create a more permanent workaround by modifying the instruction at ``004076D0`` in ``LAB_004076C1`` from ``AND EAX,0xff`` to ``MOV EAX,0x1``. This was better than simply changing JNZ to JMP as an improper EAX value might adversely affect the application's flow down the line.
+But this "live patch" was not very practical as it required repeating the steps each time Puzzleball 3D was launched. So I proceeded to create a more permanent workaround by modifying the instruction at ``004076D0`` in ``LAB_004076C1`` from ``AND EAX,0xff`` to ``MOV EAX,0x1``. This was better than simply changing the nearby JNZ to a JMP as an improper EAX value might adversely affect the application's flow down the line.
 
 Fortunately, this patch was sufficient for the application to once again resume regular functionality. We could now move back to modifying ``Arcade.dat`` and attempt to fix the typo.
