@@ -16,7 +16,27 @@ At this point in the project, if there is a mechanism for validating the ``Arcad
 
 I began by searching both of the binaries for references to ``Arcade.dat`` and ``Arcade Main 1024`` among others. I then attempted to trace them "up" to a parent function in order to determine an appropriate breakpoint location. Below is a snippet of some of the tests:
 
+```
+String 1 ➜
+    • Looking for the string "The game is looking for some data or a file..." leads us to LAB_004168b3.
+    • There is an exact duplicate of this string and code in the main app executable as in the DLL.
+    • Modifying the main app seems to not produce any effect, as before with the DLL verification step.
+    • Performing similar mods in the DLL (JNZ LAB_10082432 => JMP in FUN_10082675) causes the app to crash when button is pressed to access activation window.
+    • There is another address in the DLL [1008267b] where a similar function block can be found. Modifying this did not seem to produce an effect.
 
+String 2
+- Looking for the string "Arcade.dat" did not reveal anything in the main app. However there is one reference in the DLL at [10015c50].
+    • Not much is revealed other than the parent function, FUN_10015c0d, returns a 1-byte bool in AL, and that it has several similar blocks for ReflexiveArcade.dll, Application.dat, Channel.dat and so on.
+    • Modding the entire FUN_10015c0d block to follow expected flow did not seem to cause an effect.
+
+String 3
+    • Searching "Arcade Main 1024" leads to LAB_10006a5b which is a block under FUN_1000697e.
+    • FUN_1000697e has one parent XREF => radll_EnterMenuSession.
+    • From testing, we know that setting a breakpoint at radll_EnterMenuSession actually triggers when the button to access activation window is clicked.
+    • This is true for both genuine and modified Arcade.dat files.
+    • This is an indicator that the mechanism that does validation for Arcade.dat may be located somewhere in the radll_EnterMenuSession sub-routines.
+    • This is our next point of focus.
+```
 
 Suffice to say, almost all of the testing done at this phase led to dead ends. instruction modifications that either caused the app to crash or not reflect any change whatsoever.
 
