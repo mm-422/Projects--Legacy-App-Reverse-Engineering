@@ -14,7 +14,11 @@ As mentioned previously, the wording in the above error dialog indicates that th
 
 At this point in the project, if there is a mechanism for validating the ``Arcade.dat`` file before it is loaded into memory perhaps and used for the launcher menu's construction, it could be similar in structure to the "integrity-check" implementations seen previously for the main .EXE and the DLL.
 
-I began by searching both of the binaries for references to ``Arcade.dat`` and ``Arcade Main 1024`` among others. Suffice to say, almost all of them led to dead ends. instruction modifications that either caused the app to crash or not reflect any change whatsoever.
+I began by searching both of the binaries for references to ``Arcade.dat`` and ``Arcade Main 1024`` among others. I then attempted to trace them "up" to a parent function in order to determine an appropriate breakpoint location. Below is a snippet of some of the tests:
+
+
+
+Suffice to say, almost all of the testing done at this phase led to dead ends. instruction modifications that either caused the app to crash or not reflect any change whatsoever.
 
 Eventually, through observation and tracing with Ghidra and WinDbg, I landed on a sub-routine called ``FUN_1007F63F`` in ``ra.dll`` which seemed to perform a "loader" type of functionality. I also decided to start labelling some of these functions to make keeping track of them easier.
 
