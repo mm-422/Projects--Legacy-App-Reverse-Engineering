@@ -37,18 +37,17 @@ String 3 ➜ "Arcade Main 1024"
     • This is true for both genuine and modified Arcade.dat files.
     • This is an indicator that the mechanism that does validation for Arcade.dat may be located somewhere in the radll_EnterMenuSession sub-routines.
 ```
+Suffice to say, most of the leads discovered for testing at this phase led to dead ends. Some instruction modifications had no observable effect while others caused Puzzleball 3D to crash on pressing the ``Already Paid`` button.
 
-Suffice to say, almost all of the testing done at this phase led to dead ends. instruction modifications that either caused the app to crash or not reflect any change whatsoever.
-
-Eventually, through observation and tracing with Ghidra and WinDbg, I landed on a sub-routine called ``FUN_1007F63F`` in ``ra.dll`` which seemed to perform a "loader" type of functionality. I also decided to start labelling some of these functions to make keeping track of them easier.
+After much trial and error, I discovered a sub-routine called ``FUN_1007F63F`` in the DLL, which through preliminary observation with WinDbg seemed to perform a "loader" type of functionality for components of Puzzleball 3D like the ``Application.dat``, ``Channel.dat``, and of course, ``Arcade.dat`` resource files that are all found in the root directory.
 
 #### FUNCTION 1007F63F
 <img width="524" height="239" alt="arcadeloader" src="https://github.com/user-attachments/assets/b56e59ff-bb40-4994-8c7d-a59d84e9f62e" />
 
-The above is only a snippet of the routine's beginning section. ``FUN_1007F63F`` is simply massive with numerous branches of sub-routines that looped over each other, where even the decompiled view would likely take up multiple pages worth of space on this repo. 
+The above is only a snippet of the function's beginning section. ``FUN_1007F63F`` is massive with numerous branches of sub-routines that loop over each other, where even the decompiled view would likely take up multiple pages worth of space on this repo. 
 
-Attempting to decode this with the previous methodology of following the application's flow through WinDbg and making comparisons between expected and actual values in memory, registers, etc. was far too arduos. 
+Attempting to decode this function with the previous methodology of making comparisons between the expected and actual values in memory, registers, etc. and correlating that information with context from stepping through Puzzleball 3D's code with WinDbg, was not efficient.
 
-I eventually understood that this function was performing an extremely long routine of enumerating system details alongside each and almost every element that was drawn on the launcher menu. This was meant dozens if not hundreds of similar looking loops with little context.
+I eventually understood that this function was performing an extremely long routine (hundreds of loops) of enumerating system details alongside loading almost every "piece" of each component (``Application.dat``, ``Channel.dat``, ``Arcade.dat``, etc.) that was used to draw the launcher menu's elements; everything from text box dimensions to button colors.
 
-I had to deem this approach a "failure" too because it simply wasn't practical or even feasible to painstakingly track an application's flow hundreds of times with no real confirmation of what it is trying to do.
+It was simply not feasible to trace each loop in hopes of discovering the chain that would lead to the typo. I deemed this approach another "failure" as performing such "grunt work" with no real certainty of the outcome would likely lead to endless frustration.
