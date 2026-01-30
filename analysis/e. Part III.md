@@ -94,4 +94,11 @@ We then step forward in WinDbg to see which breakpoint gets hit and look at the 
 
 The function, ``radll_GetUnlockCode`` seems highly likely to be the function that validates the user input, and hence, is the Judge.
 
-Setting a breakpoint on this function should help us to confirm this.
+Setting a breakpoint on this function should help us to confirm this. However, this breakpoint didn't end up triggering after relaunching Puzzleball 3D and going through the activation process by inputting a random word into the input field.
+
+It turned out that the application was calling ``radll_GetUnlockCode`` through random pointers in memory, which made it difficult to locate the exact position to set a breakpoint.
+
+I decided to try tracing to the Judge by locating the mini rendering engine, and then comparing the call stacks to narrow down on a common return address.
+
+### Locating the Mini Rendering Engine
+
