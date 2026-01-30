@@ -101,4 +101,38 @@ It turned out that the application was calling ``radll_GetUnlockCode`` through r
 I decided to try tracing to the Judge by locating the mini rendering engine, and then comparing the call stacks to narrow down on a common return address.
 
 ### Locating the Mini Rendering Engine
+After extensive tests and call stack comparisons, these are the routines involved:
+```
+➜ UI/Frame Construction Flow:
+radll_DrawNextFrameIntoBuffer => 10007f07 => 10006fcb => 100c3444 => radll_IsASystemUpdateRequired => radll_IsTheMenuSessionComplete => radll_GetNumberOfRectsToUpdate => radll_GetUpdateRect => radll_HandleWindowsMessage =>
+(Eventually hits, runs continuously) 10098bca
+
+➜ KEY Validation Flow (sub-menu access by clicking link, NOT KEY SUBMIT):
+10091408 => 1008fcaf => 100b62cc
+=> UI/Frame Construction Flow (updates menu to draw sub-menu) =>
+(Eventually hits, runs continuously) 10098bca
+
+➜ KEY Validation Flow (On clicking activation menu to make active, NOT KEY SUBMIT):
+10091408 =>1008fcaf => 100b62cc => 1000b4da => UI/Frame Construction Flow
+
+➜ KEY Validation Flow (ON KEY SUBMIT):
+10091408 => 1008fcaf => 100b62cc => 1000b4da => | 100b53e8 => 1000286c => 1000b555 => UI/Frame Construction Flow (updates menu to display error message box).
+ 
+➜ On Clicking OK Button (to close error message box):
+10091408 => 1008fcaf => 100b62cc => 1000b4da
+=> UI/Frame Construction Flow (updates menu UI to display sub-menu again).
+```
+
+At this point, the Judge might very well be either ``FUN_1000286C`` or ``FUN_1000B555``.
+
+### Confirming the Judge (``FUN_1000286C`` vs. ``FUN_1000B555``)
+In a typical "game loop", the application has a flow that looks like this:
+1. The Event Handler: Gathers the user input when a trigger (like a ``SUBMIT`` button) is clicked.
+2. The Judge: Takes the string and moves to determine if it is valid.
+3. The Logic: Receives string from the Judge and performs math.
+
+Based on the Key Validation Flows above, ``FUN_1000286C`` is the most likely candidate for the Judge.
+
+### How to prove 1000286C is the Judge?
+
 
