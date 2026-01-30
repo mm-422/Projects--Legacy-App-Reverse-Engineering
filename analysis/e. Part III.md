@@ -36,6 +36,21 @@ If we could locate this "Judge function" and modify it to return a desired resul
 Before that however, we should take a look at the custom-drawn UI a little closer.
 
 ### Custom Render Engines
-It was not uncommon for applications in the early 2000s to employ their own "mini rendering engine" in order to construct custom interfaces. A great example of this is the popular (back then) media player app called Winamp.
+It was not uncommon for applications in the early 2000s to implement their own "mini rendering engine" for constructing custom interfaces. This was done to make the application stand out and bypasses the standard Windows controls in order to provide an improved experience. A great example of this is the popular (at least back then) media player app called Winamp.
 
+When we throw this custom render engine into the mix, the ``Story`` of an application's validation mechanism changes slightly.
+
+Instead of the DLL simply constructing and reporting the output at the end, it will attempt to communicate with the function actually responsible for constructing the appropriate output based on an internal ID.
+
+Let's say the result is "Unrecognized Code" instead of "Wrong Code" which carries a specific ID of 101. This ID will be passed from the DLL, through a bridge, to the function responsible for initiating and constructing the appropriate output message that might state something like "Unrecognized unlock code entered. Please check your input".
+
+Since the text for the error message is found in the ``Arcade.dat`` file, there must exist a "Resource Manager" in either the main .EXE or ``ra.dll`` that will act as a "Librarian" which will grab the correct error string to display based on the internal ID mentioned previously.
+
+### What is the Librarian exactly?
+This is usually a function responsible for loading resources into memory and then constructing and maintaing a "map" of all the items. It then retrieves the required resource straight from memory through the use of pointers.
+
+### Why load into memory instead of pulling straight from the disk?
+This is largely due to the fact that in the 2000s era, hard drives were prolific. This storage medium was slow compared to system memory. And if an app had to call the Resource Manager in order to tell the Librarian to fetch a specific resource each time a user interaction (button click for example) was performed, the UI would incur stutters, leading to poor user experience.
+
+### Tracking the Librarian
 
