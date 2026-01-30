@@ -7,30 +7,30 @@ This "pieced-together intent" is what I like to call the ``Story``.<br>
 Essentially, this is the expected flow of an application and/or its components from start to end. Understanding this well will allow us to be more measured when performing tests and analyzing binaries. 
 
 ## The Activation Mechanism Story
-For local applications like Puzzleball 3D that don't strictly require any server-side validation, the ``Story`` for its activation/validation mechanism might be as simple as gathering an input, applying some math or processing, and then producing an output based on the result.
+For local applications like Puzzleball 3D that don't strictly require any server-side verification, the ``Story`` for its activation/validation mechanism might be as simple as gathering an input, applying some math or processing, and then producing an output based on the result.
 
-Since all the resources needed for the proper and complete functionality of the application is contained within its binary and the system it is hosted or installed on, it should only be a matter of time, effort, and most importantly understanding, before every detail is unobfuscated, every "secret" unraveled.
+Since all the resources needed for the proper and complete functionality of the application is contained within its binary and the system it is hosted or installed on, it should only be a matter of time, effort, and most importantly understanding, before every detail is unobfuscated and every "secret" unraveled.
 
-With this new mindset, I set out to piece together the ``Story`` of Puzzleball 3D, starting with gathering historical context before eventually moving to renewed analysis, in order to better my attempts at cracking the activation mechanism.
+## Gathering Historical Context
+In order to flesh out the ``Story`` for Puzzleball 3D's activation mechanism, we first need to get into the mind of the original developer(s). This requires some research on period-relevant information, hence the "historical context".
 
-## The Activation Mechanism Story
-### Some history...
-Back in the 2000s and prior, the ``Story`` of a particular application usually revolved around a specific and procedural path, especially with regard to its activation or validation system.
+### ♢ Early Application Design
+Back in the 2000s, the ``Story`` of a particular application usually revolved around a specific and procedural path, especially with regard to its activation/validation system.
 
 At it's core, the system would begin with gathering an input, applying some logic and/or processing to that input, and then constructing an appropriate output based on the result.
 
-For applications that relied on external modules for validation, like a proprietary DLL as is the case with Puzzleball 3D, there would exist an extra "hand off" phase in between the input and the logic block.
+For applications that relied on external modules for validation - like a proprietary DLL as is the case with Puzzleball 3D - there would exist an extra "hand off" phase or "bridge" in between the input and the logic block.
 
 This flow can be visualized as follows:
 ```
 User Input ➜ Bridge ➜ DLL ➜ Logic/Processing ➜ Output
 ```
-Essentially, the application's main executable would act like a messenger, collecting the user input (through a prompt or button click) before passing it to the DLL in the "bridge" phase. The DLL then runs that input through some processing where a "Judge" function would ultimately decide whether it is valid. Finally, the DLL will construct an output based on the result of the processing.
+Essentially, the application's main executable would act like a messenger, collecting the user input ie. through a prompt or button click, before passing it to the DLL with the help of the "bridge". The DLL then runs that input through some processing where a "Judge" function would ultimately decide whether it is valid. Finally, the DLL will construct an output based on the result of the processing.
 
-### What is the Judge exactly?
-The Judge is simply a routine that validates an input to determine if it is valid or invalid.
+### ♢ What is the Judge?
+``The Judge`` is simply a routine that determines if an input is valid or matches an expected output.
 
-Since the logic for Puzzleball 3D's activation mechanism is likely located in ``ra.dll``, and the launcher is custom-built, there must exist a "bridge" phase or function that helps pass the collected input (which would be the unlock code in this case) to the DLL in order for the Judge function to run it through the "meat grinder" so to speak.
+Since the logic for Puzzleball 3D's activation mechanism is likely located in ``ra.dll``, and the launcher is custom-built, there must exist a "bridge" phase or function that helps pass the collected input (which would be the unlock code in this case) to the DLL in order for the ``Judge`` to run it through the "meat grinder" so to speak.
 
 If we could locate this "Judge function" and modify it to return a desired result after the processing, we could bypass the activation mechanism.
 
