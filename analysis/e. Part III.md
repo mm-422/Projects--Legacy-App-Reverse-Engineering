@@ -3,11 +3,13 @@ In the previous part, we saw how methodology alone could become insufficient whe
 
 We should remember that a tool or technique in Reverse Engineering is not a _one-size-fits-all_ type of solution. It is simply a means to an end, which is to piece together the original developer's intent behind the design of an application.
 
-Any piece of software can be thought to possess, what I like to call, a ``Story``. This is the expected structure and workflow from start to end, that takes an input, applies some processing, and then produces an output.
+This "pieced-together intent" is what I like to call the ``Story``.<br>
+Essentially, this is the expected flow of an application and/or its components from start to end. Understanding this well will allow us to be more measured when performing tests and analyzing binaries. 
 
-This is especially important to consider for local applications like Puzzleball 3D that don't strictly require server-side validation. This is because all the resources needed for the proper and complete functionality of the application is contained within its binary and the system it is hosted or installed on.
+## The Activation Mechanism Story
+For local applications like Puzzleball 3D that don't strictly require any server-side validation, the ``Story`` for its activation/validation mechanism might be as simple as gathering an input, applying some math or processing, and then producing an output based on the result.
 
-It should only be a matter of time, effort, and most importantly understanding, before every detail is unobfuscated, every "secret" unraveled.
+Since all the resources needed for the proper and complete functionality of the application is contained within its binary and the system it is hosted or installed on, it should only be a matter of time, effort, and most importantly understanding, before every detail is unobfuscated, every "secret" unraveled.
 
 With this new mindset, I set out to piece together the ``Story`` of Puzzleball 3D, starting with gathering historical context before eventually moving to renewed analysis, in order to better my attempts at cracking the activation mechanism.
 
