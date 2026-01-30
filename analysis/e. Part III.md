@@ -1,14 +1,13 @@
 # Part III
-## A Shift
-In the previous part, we saw how methodology alone could become insufficient when put up against a complex routine with little to no context. What worked well for uncovering the earlier validation mechanisms was quickly diminished in the face of a relatively opaque function that made even brute-forcing unfeasible.
+In the previous part, we saw how methodology alone could become insufficient when put up against a complex routine with little to no context. What worked well for uncovering the earlier validation mechanisms, was quickly diminished in the face of a relatively opaque function that made even brute-forcing unfeasible.
 
-The tools and techniques in Reverse Engineering are simply a means to an end. That end, is to be able to piece together the original developer's intent behind the design of a particular application.
+We should remember that a tool or technique in Reverse Engineering is not a _one-size-fits-all_ type of solution. It is simply a means to an end, which is to piece together the original developer's intent behind the design of an application.
 
-Every piece of software can be thought to possess its own "Story"; an expected workflow from start to end, from input to output.
+Any piece of software can be thought to possess, what I like to call, a ``Story``. This is the expected structure and workflow from start to end, that takes an input, applies some processing, and then produces an output.
 
-This is especially important to consider for local applications that don't strictly require server-side validation. This is because all the resources needed for the proper and complete functionality of the app is found within its binary and the system it is hosted or installed on.
+This is especially important to consider for local applications like Puzzleball 3D that don't strictly require server-side validation. This is because all the resources needed for the proper and complete functionality of the application is contained within its binary and the system it is hosted or installed on.
 
-It should only be a matter of time, effort, and most importantly understanding before every detail is unobfuscated, every "secret" unraveled.
+It should only be a matter of time, effort, and most importantly understanding, before every detail is unobfuscated, every "secret" unraveled.
 
 With this new mindset, I set out to piece together the ``Story`` of Puzzleball 3D, starting with gathering historical context before eventually moving to renewed analysis, in order to better my attempts at cracking the activation mechanism.
 
