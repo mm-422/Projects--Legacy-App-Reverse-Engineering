@@ -30,45 +30,47 @@ Essentially, the application's main executable would act like a messenger, colle
 ### ♢ What is the Judge?
 ``The Judge`` is simply a routine that determines if an input is valid or matches an expected output.
 
-Since the logic for Puzzleball 3D's activation mechanism is likely located in ``ra.dll``, and the launcher is custom-built, there must exist a "bridge" phase or function that helps pass the collected input (which would be the unlock code in this case) to the DLL in order for the ``Judge`` to run it through the "meat grinder" so to speak.
+Since the logic for Puzzleball 3D's activation mechanism is likely located in ``ra.dll``, and the launcher is custom-built, there must exist a "bridge" phase or function that helps pass the collected input - which would be the unlock code in this case - to the DLL in order for the ``Judge`` to run it through the "meat grinder" so to speak.
 
 If we could locate this "Judge function" and modify it to return a desired result after the processing, we could bypass the activation mechanism.
 
 Before that however, we should take a look at the custom-drawn UI a little closer.
 
-### Custom Render Engines
-It was not uncommon for applications in the early 2000s to implement their own "mini rendering engine" for constructing custom interfaces. This was done to make the application stand out and bypasses the standard Windows controls in order to provide an improved experience. A great example of this is the popular (at least back then) media player app called Winamp.
+### ♢ Custom Render Engines
+It was not uncommon for applications in the early 2000s to implement their own "mini rendering engine" for constructing custom interfaces. This was done to make the applications stand out and bypasses the standard Windows controls in order to provide a potentially improved experience. A great example of this is the popular media player app (at least back then) called Winamp.
 
-When we throw this custom render engine into the mix, the ``Story`` of an application's validation mechanism changes slightly.
+When we throw this "custom render engine" into the mix, the ``Story`` of an application's validation mechanism changes slightly.
 
 Instead of the DLL simply constructing and reporting the output at the end, it will attempt to communicate with the function actually responsible for constructing the appropriate output based on an internal ID.
 
-Let's say the result is "Unrecognized Code" instead of "Wrong Code" which carries a specific ID of 101. This ID will be passed from the DLL, through a bridge, to the function responsible for initiating and constructing the appropriate output message that might state something like "Unrecognized unlock code entered. Please check your input".
+Let's say the result after processing an unlock code is ``Unrecognized Code`` instead of ``Wrong Code`` ― both being different but essentially meaning "invalid code" ― which carries a specific internal ID of 101. This ID will then be passed from the DLL, through possibly another bridge, over to the function responsible for constructing the message tied to that ID ie. _Unrecognized unlock code entered. Please check your receipt or contact support._
 
-Since the text for the error message is found in the ``Arcade.dat`` file, there must exist a "Resource Manager" in either the main .EXE or ``ra.dll`` that will act as a "Librarian" which will grab the correct error string to display based on the internal ID mentioned previously.
+Since the error text is found in the ``Arcade.dat`` file, there must exist a routine in either the main .EXE or ``ra.dll`` that will act as a "Librarian" to grab the correct error string to display based on the internal ID mentioned previously.
 
-### What is the Librarian exactly?
-This is usually a function responsible for loading resources into memory and then constructing and maintaing a "map" of all the items. It then retrieves the required resource straight from memory through the use of pointers.
+### ♢ What is the Librarian?
+This is usually a function responsible for loading items/resources into memory and then constructing a "map" to keep track of them. It then retrieves the required item straight from a location in memory through the use of pointers.
 
-### Why load into memory instead of pulling straight from the disk?
-This is largely due to the fact that in the 2000s era, hard drives were prolific. This storage medium was slow compared to system memory. And if an app had to call the Resource Manager in order to tell the Librarian to fetch a specific resource each time a user interaction (button click for example) was performed, the UI would incur stutters, leading to poor user experience.
+Why load those items into memory instead of pulling them straight from the disk?
+This is largely due to the fact that hard drives were prolific in the 2000s. This storage medium was much slower than system memory. And if an application had to call the ``Librarian`` to fetch a specific resource each time a user interaction ― like a button click ― was performed, the UI would incur stutters and lead to poor user experience.
 
-### Tracking the Librarian
-Knowing the location of the Librarian could come in handy when attempting to trace error messages through pointers (like the ID example) in memory.
+This is a critical bit of understanding that helps make the flow of Puzzleball 3D's components seem clearer.
 
-Instead of setting a breakpoint on an error string, we could consider setting them on calls to Windows APIs that allow the application to communicate with resource files like ``Arcade.dat``.
+### ♢ Tracking the Librarian
+Knowing the location of the ``Librarian`` could come in handy when attempting to trace error messages through pointers in memory.
 
-Since the error strings like "Unrecognized Unlock Code" are located in an external file, ``Arcade.dat``, it would be more practical to set a breakpoint on function calls to APIs like ``CreateFile`` and ``ReadFile`` which are more than likely used to open the .dat file and pull the required string from it.
+Instead of setting a breakpoint on strings found in binaries, we could consider setting them on calls to Windows APIs that allow the application to communicate with external data/resource files like ``Arcade.dat``.
 
-We can trace our way to the Librarian by:
+Since error strings like ``Unrecognized Unlock Code`` are found in ``Arcade.dat`` ― an external file ― it would be more practical to set a breakpoint on API calls like ``CreateFile`` and ``ReadFile``, which are more than likely used to open ``Arcade.dat`` and read from it before pulling the required string.
+
+We can trace our way to the ``Librarian`` by:
 1. Loading Puzzleball 3D through WinDbg.
 2. Navigating to the input field in the launcher's sub menu.
 3. Setting a breakpoint through WinDbg with the command ➜ ``bp kernel32!ReadFile``
 4. Looking at the call stack when the breakpoint hits.
-5. Finding the parent class ➜ This is the Librarian.
+5. Finding the parent class ➜ This is the ``Librarian``.
 
-### How To Find the Judge
-Let's go back to locating the Judge and the activation mechanism. As a quick reminder, the Judge will be function that:
+## Finding the Judge
+With that bit of historical context provided, let's go back to locating the ``Judge`` along with the activation mechanism. As a quick reminder, the ``Judge`` will be a routine that:
 - Receives user input.
 - Performs math or processing.
 - Determines if result is valid or invalid and sets a flag based on the result.
