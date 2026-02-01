@@ -12,7 +12,7 @@ There are several approaches we could take at this point in time to locate the J
 
 With option 1, there is a risk of getting tangled inside routines that are simply constructing individual elements on the launcher menu. It is easier to locate the Judge with option 2 as it cannot tell if a key is valid or invalid without reading the input first.
 
-### Testing with WinDbg
+### ♦️ Testing with WinDbg
 First, we set a breakpoint on the ``ReadFile`` API with the command ``bp kernel32!ReadFile`` so that the application would "freeze" when we click the ``SUBMIT`` button as the error string is located in ``Arcade.dat``, which is an external file that needs to be read.
 
 We then attempt to locate the entered user input by using the command ``s -a 0 1?80000000 "CAKE"``. This command basically searches the entire memory space for the ASCII string "CAKE" which is unmistakable.
