@@ -100,18 +100,19 @@ Upon repeated tests with the same breakpoint location as above, ``Arcade.dat`` i
 
 <img width="697" height="317" alt="readfile exact" src="https://github.com/user-attachments/assets/993644e0-97ed-4df4-bc7f-429cfaaffb87" />
 
-After a lot of work tracing through the functions, the overall flow for accessing ``Arcade.dat`` is as follows:
+Using that as context to perform "tracing work", I was able to establish the overall flow of the application ― from clicking the ``SUBMIT`` button to the moment the error string is pulled from ``Arcade.dat`` ― as follows:
 ```
-radll_radll_Initialize
-  ➜ ArcadeLoader
-    ➜ ArcadeLoaderCORE (3rd instance)
+radll_Initialize
+  ➜ FUN_1007f63f aka ArcadeLoader
+    ➜ 3rd call of FUN_10083b51 aka ArcadeLoaderCORE
       ➜ FUN_100837c2
         ➜ FUN_10084328
           ➜ FUN_10083f39
-            ➜ LBR-4_1008008f (Wrapper. Multiple calls found)
-              ➜ LAB_10080bb5 section under FUN_100809ee
-                ➜ LBR-3_100a26de
-                  ➜ LBR-2_100a270d
-                    ➜ LBR-1_100a900a
-                      ➜ LBR_ReadFile
+            ➜ FUN_1008008f (Wrapper. Multiple calls found)
+              ➜ LAB_10080bb5 sub-routine under FUN_100809ee
+                ➜ FUN_100a26de
+                  ➜ FUN_100a270d
+                    ➜ FUN_100a900a
+                      ➜ LAB_100a90d5 sub-routine under FUN_100a906F aka LBR_ReadFile
 ```
+With this critical bit of context established, we can now go back to locating the ``Judge`` and move towards decoding and bypassing Puzzleball 3D's activation mechanism in the next part.
