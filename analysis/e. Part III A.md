@@ -31,12 +31,12 @@ Essentially, the application's main executable would act like a **messenger**, c
 
 The DLL then runs that input through some processing where a "Judge" function would ultimately decide whether it is valid. Finally, the DLL will construct an output based on the result of the processing.
 
-### ♦️  What is the Judge?
+### ♦️ What is the Judge?
 ``The Judge`` is simply a routine that determines if an input is valid or matches an expected output.
 
-Since the logic for Puzzleball 3D's activation mechanism is likely located in ``ra.dll``, and the launcher is custom-built, there must exist a "bridge" phase or function that helps pass the collected input - which would be the unlock code in this case - to the DLL in order for the ``Judge`` to run it through the "meat grinder" so to speak.
+Since the logic for Puzzleball 3D's activation mechanism is likely located in ``ra.dll``, and the launcher is custom-built, there must exist an intermediate function or "bridge", that helps pass the collected input ― which would be the unlock code in this case ― to the DLL in order for the ``Judge`` to run it through the "meat grinder" so to speak.
 
-If we could locate this "Judge function" and modify it to return a desired result after the processing, we could bypass the activation mechanism.
+If we could locate the ``Judge`` and modify it to return a desired result **after** the processing, we could bypass the activation mechanism.
 
 Before that however, we should take a look at the custom-drawn UI a little closer.
 
