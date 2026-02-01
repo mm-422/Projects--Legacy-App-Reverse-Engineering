@@ -36,39 +36,82 @@ The DLL then runs that input through some processing where a "Judge" function wo
 
 Since the logic for Puzzleball 3D's activation mechanism is likely located in ``ra.dll``, and the launcher is custom-built, there must exist an intermediate function or "bridge", that helps pass the collected input ― which would be the unlock code in this case ― to the DLL in order for the ``Judge`` to run it through the "meat grinder" so to speak.
 
-If we could locate the ``Judge`` and modify it to return a desired result **after** the processing, we could bypass the activation mechanism.
+If we could locate the ``Judge`` and modify it to return a desired result **after** the processing ― like a 1 instead of 0 ― we could bypass the activation mechanism.
 
-Before that however, we should take a look at the custom-drawn UI a little closer.
+But before that, we should take a look at the custom-drawn UI for Puzzleball 3D to see how it relates to the ``Judge`` and how it might affect other parts of the application's design.
 
-### ♢ Custom Render Engines
-It was not uncommon for applications in the early 2000s to implement their own "mini rendering engine" for constructing custom interfaces. This was done to make the applications stand out and bypasses the standard Windows controls in order to provide a potentially improved experience. A great example of this is the popular media player app (at least back then) called Winamp.
+### ♦️ Custom Render Engines
+It was not uncommon for applications in the early 2000s to implement their own "mini rendering engine" for constructing custom interfaces. This was done to make the apps stand out and bypasses the standard Windows controls in order to provide benefits like a potentially improved user experience. A great example of this is the popular media player (at least back then) called Winamp.
 
-When we throw this "custom render engine" into the mix, the ``Story`` of an application's validation mechanism changes slightly.
+When we throw this "mini rendering engine" into the mix, the ``Story`` of an application's validation mechanism changes slightly.
 
-Instead of the DLL simply constructing and reporting the output at the end, it will attempt to communicate with the function actually responsible for constructing the appropriate output based on an internal ID.
+Instead of the DLL simply constructing and reporting the output at the end, it will attempt to communicate with the function that is actually responsible for constructing the appropriate output based on an "internal ID" system.
 
-Let's say the result after processing an unlock code is ``Unrecognized Code`` instead of ``Wrong Code`` ― both being different but essentially meaning "invalid code" ― which carries a specific internal ID of 101. This ID will then be passed from the DLL, through possibly another bridge, over to the function responsible for constructing the message tied to that ID ie. _Unrecognized unlock code entered. Please check your receipt or contact support._
+Let's say the result after processing an unlock code is ``Unrecognized Code`` instead of ``Wrong Code`` ― both being different but essentially meaning "invalid code" ― which carries a specific internal ID of ``101``. This ID will then be passed from the DLL, through possibly another "bridge", over to the function responsible for constructing a message tied to that ID.
 
-Since the error text is found in the ``Arcade.dat`` file, there must exist a routine in either the main .EXE or ``ra.dll`` that will act as a "Librarian" to grab the correct error string to display based on the internal ID mentioned previously.
+<img width="1280" height="720" alt="Unrecognized Code" src="https://github.com/user-attachments/assets/0f9be2cf-25a7-44e6-80b1-912e667e462b" />
 
-### ♢ What is the Librarian?
-This is usually a function responsible for loading items/resources into memory and then constructing a "map" to keep track of them. It then retrieves the required item straight from a location in memory through the use of pointers.
+A quick sift through the ``Arcade.dat`` file with Notepad again, revealed that most if not all of the text found on this part of Puzzleball 3D's launcher ― like the word "compter" and "Unrecognized Unlock Code" ― is pulled from that specific resource file.
+
+There must exist a routine in either the main .EXE or ``ra.dll`` that will act as a "Librarian" to grab the correct error string to display based on the internal ID system mentioned previously.
+
+### ♦️ What is the Librarian?
+This is usually a function responsible for loading items/resources into memory and then constructing a "map" to keep track of them. It then retrieves the required item straight from a location in memory through the use of pointers or IDs.
 
 Why load those items into memory instead of pulling them straight from the disk?
-This is largely due to the fact that hard drives were prolific in the 2000s. This storage medium was much slower than system memory. And if an application had to call the ``Librarian`` to fetch a specific resource each time a user interaction ― like a button click ― was performed, the UI would incur stutters and lead to poor user experience.
+This is largely due to hard drives being prolific in the 2000s. This mainstream storage medium was much slower than system memory. If an application had to call the ``Librarian`` to fetch a specific resource each time a user interaction ― like a button click ― was performed, the UI would incur stutters and lead to poor user experience.
 
-This is a critical bit of understanding that helps make the flow of Puzzleball 3D's components seem clearer.
+This is a critical bit of understanding that helps shed light on the flow of Puzzleball 3D's routines and components while aiding in making decisions like knowing when to search for data through the system memory instead of the local storage device.  
 
-### ♢ Tracking the Librarian
-Knowing the location of the ``Librarian`` could come in handy when attempting to trace error messages through pointers in memory.
+### ♦️ Tracking the Librarian
+Uncovering the location of the ``Librarian`` could come in handy later when attempting to say, trace error messages up to the ``Judge`` through the use of pointers or IDs in memory.
 
-Instead of setting a breakpoint on strings found in binaries, we could consider setting them on calls to Windows APIs that allow the application to communicate with external data/resource files like ``Arcade.dat``.
+Instead of setting a breakpoint on string references, we could consider placing them on calls to Windows APIs that allow the application to communicate with external data/resource files like ``Arcade.dat``.
 
-Since error strings like ``Unrecognized Unlock Code`` are found in ``Arcade.dat`` ― an external file ― it would be more practical to set a breakpoint on API calls like ``CreateFile`` and ``ReadFile``, which are more than likely used to open ``Arcade.dat`` and read from it before pulling the required string.
+Since error strings like ``Unrecognized Unlock Code`` are found in ``Arcade.dat`` ― which is an external file ― it would be more practical to set a breakpoint on API calls like ``CreateFile`` and ``ReadFile``, which are more than likely used to open ``Arcade.dat`` and read from it before pulling the required string.
 
 We can trace our way to the ``Librarian`` by:
-1. Loading Puzzleball 3D through WinDbg.
+1. Loading Puzzleball 3D on WinDbg.
 2. Navigating to the input field in the launcher's sub menu.
 3. Setting a breakpoint through WinDbg with the command ➜ ``bp kernel32!ReadFile``
-4. Looking at the call stack when the breakpoint hits.
-5. Finding the parent class ➜ This is the ``Librarian``.
+4. Entering a fake code to initiate the process of drawing the error dialog.
+5. Looking at the call stack when the breakpoint hits.
+6. Finding the parent class ➜ This is the ``Librarian``.
+
+It is important to note that an application's ``Librarian`` is usually responsible for handling requests from multiple sources and is almost never tied to just loading a single file; otherwise the ``ReadFile`` API alone would be sufficient.
+
+Below is what the call stack in WinDbg looked like after the breakpoint on ``ReadFile`` was hit:
+
+<img width="697" height="317" alt="librarian" src="https://github.com/user-attachments/assets/370d4fe7-d608-4563-9fe8-d6c57529dfc6" />
+
+It was still unclear which exact routine was the "core" ``Librarian`` and which ones were simply child functions. This is why I placed temporary labels on the image in order to use as a reference later on.
+
+Since Puzzleball 3D relies on more than one external file ― like ``RAW_003.wdt``, ``Arcade.dat``, ``Channel.dat`` and so on ― the breakpoint was hit a total of 137 times subsequently. I had to correlate this data with observations in Procmon in order to narrow down the exact breakpoint that is tied to the loading routine for ``Arcade.dat``.
+
+To do this, I set Procmon up with the following filters in addition to the defaults:
+
+<img width="1027" height="757" alt="procmon filters" src="https://github.com/user-attachments/assets/50c5c570-6318-4c38-9a06-c7d7641d7095" />
+
+I then "stepped the execution forward" in WinDbg while monitoring the Procmon window for events.
+
+<img width="990" height="722" alt="procmon readfile" src="https://github.com/user-attachments/assets/5bc3337d-f5b1-4065-93e5-5d8141360904" />
+
+Upon repeated tests with the same breakpoint location as above, ``Arcade.dat`` is confirmed to load on the fourth ``ReadFile`` operation each and every time. Checking the call stack in WinDbg now shows us the exact stack structure that we should investigate:
+
+<img width="697" height="317" alt="readfile exact" src="https://github.com/user-attachments/assets/993644e0-97ed-4df4-bc7f-429cfaaffb87" />
+
+After a lot of work tracing through the functions, the overall flow for accessing ``Arcade.dat`` is as follows:
+```
+radll_radll_Initialize
+  ➜ ArcadeLoader
+    ➜ ArcadeLoaderCORE (3rd instance)
+      ➜ FUN_100837c2
+        ➜ FUN_10084328
+          ➜ FUN_10083f39
+            ➜ LBR-4_1008008f (Wrapper. Multiple calls found)
+              ➜ LAB_10080bb5 section under FUN_100809ee
+                ➜ LBR-3_100a26de
+                  ➜ LBR-2_100a270d
+                    ➜ LBR-1_100a900a
+                      ➜ LBR_ReadFile
+```
