@@ -72,7 +72,7 @@ We then set hardware breakpoints on all the memory addresses found where the use
 
 We then step forward in WinDbg to see which breakpoint gets hit and look at the call stack; paying special attention to the return address column.
 
-<img width="529" height="423" alt="image" src="https://github.com/user-attachments/assets/3cdae877-3e57-49ae-ba88-109d6ea6071f" />
+<img width="528" height="423" alt="call stack overlap" src="https://github.com/user-attachments/assets/a6f82028-f87f-4d92-8fcc-2cfb79a48288" />
 
 The return address for the item on top of the stack is ``1000B565`` which is actually located in ``FUN_1000B555``. If we look at the second item on the call stack, we see the return address, ``10002915`` which is located in ``FUN_1000286C``, the parent function of ``FUN_1000B555``.
 
