@@ -1,4 +1,4 @@
-<img width="528" height="423" alt="call stack overlap" src="https://github.com/user-attachments/assets/0295dc0f-4782-4780-b0e5-961df48adef6" /># Part III B
+# Part III B
 > GOAL: Locate the Judge.
 
 As a quick reminder, the ``Judge`` will be a routine in the program that:
