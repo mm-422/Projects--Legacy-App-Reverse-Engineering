@@ -1,4 +1,4 @@
-# Part III B
+<img width="528" height="423" alt="call stack overlap" src="https://github.com/user-attachments/assets/0295dc0f-4782-4780-b0e5-961df48adef6" /># Part III B
 > GOAL: Locate the Judge.
 
 As a quick reminder, the ``Judge`` will be a routine in the program that:
@@ -74,54 +74,14 @@ We then step forward in WinDbg to see which breakpoint gets hit and look at the 
 
 <img width="528" height="423" alt="call stack overlap" src="https://github.com/user-attachments/assets/a6f82028-f87f-4d92-8fcc-2cfb79a48288" />
 
-The return address for the item on top of the stack is ``1000B565`` which is actually located in ``FUN_1000B555``. If we look at the second item on the call stack, we see the return address, ``10002915`` which is located in ``FUN_1000286C``, the parent function of ``FUN_1000B555``.
+The return address for the item on top of the stack is ``1000B565`` which is actually located in ``FUN_1000B555``. This is the overlap we are looking for.
+
+The likelihood of being in the right chain of routines is made even greater when we look at the second item on the call stack ➜ address ``10002915``.
+This is located in ``FUN_1000286C``, the parent function of ``FUN_1000B555``, and is right where the ``TEST AL,AL`` instruction is.
 
 <img width="933" height="137" alt="290c" src="https://github.com/user-attachments/assets/2c8ed547-cb98-4139-9553-e55a16b30bbe" />
 
-The address ``10002915`` is right where the TEST instruction is. This indicates that the value in the AL register acts as a "flag"
+ This indicates that the value in the AL register acts as a "flag"
 
-
-The function, ``radll_GetUnlockCode`` seems highly likely to be the function that validates the user input, and hence, is the Judge.
-
-Setting a breakpoint on this function should help us to confirm this. However, this breakpoint didn't end up triggering after relaunching Puzzleball 3D and going through the activation process by inputting a random word into the input field.
-
-It turned out that the application was calling ``radll_GetUnlockCode`` through random pointers in memory, which made it difficult to locate the exact position to set a breakpoint.
-
-I decided to try tracing to the Judge by locating the mini rendering engine, and then comparing the call stacks to narrow down on a common return address.
-
-### Locating the Mini Rendering Engine
-After extensive tests and call stack comparisons, these are the routines involved:
-```
-➜ UI/Frame Construction Flow:
-radll_DrawNextFrameIntoBuffer => 10007f07 => 10006fcb => 100c3444 => radll_IsASystemUpdateRequired => radll_IsTheMenuSessionComplete => radll_GetNumberOfRectsToUpdate => radll_GetUpdateRect => radll_HandleWindowsMessage =>
-(Eventually hits, runs continuously) 10098bca
-
-➜ KEY Validation Flow (sub-menu access by clicking link, NOT KEY SUBMIT):
-10091408 => 1008fcaf => 100b62cc
-=> UI/Frame Construction Flow (updates menu to draw sub-menu) =>
-(Eventually hits, runs continuously) 10098bca
-
-➜ KEY Validation Flow (On clicking activation menu to make active, NOT KEY SUBMIT):
-10091408 =>1008fcaf => 100b62cc => 1000b4da => UI/Frame Construction Flow
-
-➜ KEY Validation Flow (ON KEY SUBMIT):
-10091408 => 1008fcaf => 100b62cc => 1000b4da => | 100b53e8 => 1000286c => 1000b555 => UI/Frame Construction Flow (updates menu to display error message box).
- 
-➜ On Clicking OK Button (to close error message box):
-10091408 => 1008fcaf => 100b62cc => 1000b4da
-=> UI/Frame Construction Flow (updates menu UI to display sub-menu again).
-```
-
-At this point, the Judge might very well be either ``FUN_1000286C`` or ``FUN_1000B555``.
-
-### Confirming the Judge (``FUN_1000286C`` vs. ``FUN_1000B555``)
-In a typical "game loop", the application has a flow that looks like this:
-1. The Event Handler: Gathers the user input when a trigger (like a ``SUBMIT`` button) is clicked.
-2. The Judge: Takes the string and moves to determine if it is valid.
-3. The Logic: Receives string from the Judge and performs math.
-
-Based on the Key Validation Flows above, ``FUN_1000286C`` is the most likely candidate for the Judge.
-
-### How to prove 1000286C is the Judge?
 
 
