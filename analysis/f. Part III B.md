@@ -1,19 +1,34 @@
 # Part III B
-## Finding the Judge
-With that bit of historical context provided, let's go back to locating the ``Judge`` along with the activation mechanism. As a quick reminder, the ``Judge`` will be a routine that:
+> GOAL: Locate the Judge.
+
+As a quick reminder, the ``Judge`` will be a routine in the program that:
 - Receives user input.
-- Performs math or processing.
+- Performs math or processing on the input.
 - Determines if result is valid or invalid and sets a flag based on the result.
-- Hands over execution to a Resource Manager and Librarian that will construct the appropriate error dialog.
+- Hands over execution to a ``Librarian`` that will construct the appropriate error dialog.
 
-There are several approaches we could take at this point in time to locate the Judge:
-1. Tracing the error string, with help from the Librarian, to locate the routine that called for the mini rendering engine to draw the error dialog on screen.
-2. Tracing the user input in memory to the first routine that "touches" it.
+## Finding the Judge
+Based on all the testing we've performed up to this point, there are two approaches we could take to locate the ``Judge``:
+1. Trace the error string through the ``Librarian`` to locate the function that called for the "mini rendering engine" to draw the error dialog on screen.
+2. Locate the user input in memory, set a breakpoint, and "catch" the first function that "touches" it.
 
-With option 1, there is a risk of getting tangled inside routines that are simply constructing individual elements on the launcher menu. It is easier to locate the Judge with option 2 as it cannot tell if a key is valid or invalid without reading the input first.
+With ``option 1``, there is a risk of getting tangled inside routines that are simply constructing individual elements on the launcher menu and have nothing to do with the activation mechanism.
+
+With ``option 2``, we stand a higher chance of success as the ``Judge`` and "downstream" routines must be able to receive and read the user input first before it could determine if a key is valid or invalid. The function that attempts to access or read the user input stored in memory, soon after the ``SUBMIT`` button is clicked to initiate the activation process, is very likely to be closely related to the ``Judge``.
+
+#### There is a problem
+In order to locate the user input in memory, we need the application to be in frozen state. This means that we'll need to set a breakpoint somewhere in Puzzleball 3D's code which triggers as soon as the ``SUBMIT`` button is clicked and definitely before the ``Judge`` is able to get its hands on it.
+
+This is where the unit testing function, ``unittest_ValidateUnlockCode`` comes in. While this routine was never utilized by Puzzleball 3D during normal operation, I wondered if there existed a similar looking function somewhere in the main .EXE or DLL file that performed the logic for activation.
+
+We know that ``FUN_10018172`` and ``FUN_100180d1`` are the functions that likely perform some form of processing on an input in order to validate it.
+
+I searched for XREFs to these functions and was able to find a function in ``ra.dll`` called ``FUN_1000B555``.
 
 ### ♦️ Testing with WinDbg
-First, we set a breakpoint on the ``ReadFile`` API with the command ``bp kernel32!ReadFile`` so that the application would "freeze" when we click the ``SUBMIT`` button as the error string is located in ``Arcade.dat``, which is an external file that needs to be read.
+First, we set a breakpoint on the ``ReadFile`` API with the command ``bp kernel32!ReadFile``. This should cause the application to "freeze" when we click the ``SUBMIT`` button.
+
+This is because the error strings are located in ``Arcade.dat``, which is an external file that needs to be read through ``ReadFile``.
 
 We then attempt to locate the entered user input by using the command ``s -a 0 1?80000000 "CAKE"``. This command basically searches the entire memory space for the ASCII string "CAKE" which is unmistakable.
 
