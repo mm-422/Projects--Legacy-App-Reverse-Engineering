@@ -76,12 +76,48 @@ We then step forward in WinDbg to see which breakpoint gets hit and look at the 
 
 The return address for the item on top of the stack is ``1000B565`` which is actually located in ``FUN_1000B555``. This is the overlap we are looking for.
 
-The likelihood of being in the right chain of routines is made even greater when we look at the second item on the call stack ➜ address ``10002915``.
+The likelihood of us being inside the right chain of routines is made even greater when we look at the second item on the call stack ➜ address ``10002915``.
 This is located in ``FUN_1000286C``, the parent function of ``FUN_1000B555``, and is right where the ``TEST AL,AL`` instruction is.
 
 <img width="933" height="137" alt="290c" src="https://github.com/user-attachments/assets/2c8ed547-cb98-4139-9553-e55a16b30bbe" />
 
- This indicates that the value in the AL register acts as a "flag"
+The TEST instruction placed right after the call to ``FUN_1000B555`` indicates that the result from this operation might act as a flag for the application to decide if it should take the JZ path to ``LAB_10002969``.
 
+That sub-routine could possibly lead to error type categorization and/or error dialog construction. To confirm this, we need to examine what the register values look like right before the TEST instruction.
 
+This can be done by simply setting a breakpoint at the last line in ``FUN_1000B555`` which is the RET instruction, and then proceeding through the activation process again.
 
+<img width="969" height="266" alt="registers" src="https://github.com/user-attachments/assets/e26c9800-54a4-460f-a476-923aa186e089" />
+
+The above is a screenshot of the register values and flag status as displayed in WinDbg. We can see that the AL portion of EAX is filled with ``00``. This indicates there is an expected value for the AL register which will correlate with the validity of the unlock code supplied by the user.
+
+A TEST instruction is essentially a bitwise AND operation that temporarily checks for the result and sets the zero flag based on the result. Since the AL register contains a zero value, the TEST instruction with the AL register against itself will return a zero and set the zero flag or ZF to 1.
+
+This means that the application's flow takes the path towards the ``LAB_10002969`` when supplied with an invalid unlock code.
+
+### The Judge
+From the previous call stack, going further upstream from FUN_1000286C is not possible with static analysis through Ghidra. This is because there is only one XREF point and it is a pointer in memory.
+
+<img width="639" height="180" alt="xref286c" src="https://github.com/user-attachments/assets/88c7a3a9-9c00-4ada-9bcc-cfd02d60a823" />
+
+With this, we can ascertain that ``FUN_100286C`` is an isolated or "modularized" routine that is called upon to execute specific operations like verifying unlock codes and initiating error dialog construction.
+
+``FUN_1000286C`` is the ``Judge``, albeit this can be subjective and what matters most is the ultimate goal of bypassing the activation mechanism.
+
+### ♦️ Hypothesis
+Patching the assembly or modifying the register value to essentially flip the application's flow to skip the JZ instruction in ``LAB_1000290C`` might get us the desired result and bypass the activation.
+
+## Bypassing Activation with WinDbg
+We can set and clear flags in WinDbg by using the following command:
+```
+r <flag alias> = <0 to clear, 1 to set>
+```
+We can quickly test to see if this method would work for bypassing the activation by setting a breakpoint right at the ``TEST AL,AL`` instruction in ``LAB_1000290C``, going through the activation process in Puzzleball 3D's launcher menu, and then flipping the flag before stepping forward.
+
+<img width="626" height="99" alt="image" src="https://github.com/user-attachments/assets/8307ddf3-fe6b-465d-8893-1d9fb2d14d05" />
+
+Success!
+
+<img width="600" height="81" alt="image" src="https://github.com/user-attachments/assets/2cc6e4bd-aa42-41ec-aee7-e2d0f7ce3c4e" />
+
+A permanent patch is trivial to create at this point and simply involves modifying the assembly instruction within ``FUN_1000B555`` to ensure that the AL register contains a non-zero value (1) before the TEST instruction in ``LAB_1000290C``.
