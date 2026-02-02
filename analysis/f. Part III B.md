@@ -3,20 +3,40 @@
 
 As a quick reminder, the ``Judge`` will be a routine in the program that:
 - Receives user input.
-- Performs math or processing on the input.
-- Determines if result is valid or invalid and sets a flag based on the result.
+- Performs math or processing on that input.
+- Determines if the input is valid or invalid and sets a flag based on the result.
 - Hands over execution to a ``Librarian`` that will construct the appropriate error dialog.
 
 ## Finding the Judge
-Based on all the testing we've performed up to this point, there are two approaches we could take to locate the ``Judge``:
-1. Trace the error string through the ``Librarian`` to locate the function that called for the "mini rendering engine" to draw the error dialog on screen.
-2. Locate the user input in memory, set a breakpoint, and "catch" the first function that "touches" it.
+There are 2 ways to locate the ``Judge`` based on all the testing performed up to this point:
+
+### ♦️ Option 1
+```
+• Trace the error string in the DLL back up to the Librarian.
+• Locate the internal ID for the error, if there is one.
+• Follow this ID back to the function that calls for the "mini rendering engine".
+• This function likely receives a command from the Judge to draw the error dialog.
+• The Judge should be close.
+```
+
+### ♦️ Option 2
+```
+• Load the program into WinDbg.
+• Enter a fake unlock code into the launcher menu.
+• Locate the code in memory and set a hardware breakpoint on read.
+• Step forward in WinDbg.
+• "Catch" the first function that accesses it.
+• This function likely hands over the user input (code) for processing.
+• The Judge should be close.
+```
 
 With ``option 1``, there is a risk of getting tangled inside routines that are simply constructing individual elements on the launcher menu and have nothing to do with the activation mechanism.
 
-With ``option 2``, we stand a higher chance of success as the ``Judge`` and "downstream" routines must be able to receive and read the user input first before it could determine if a key is valid or invalid. The function that attempts to access or read the user input stored in memory, soon after the ``SUBMIT`` button is clicked to initiate the activation process, is very likely to be closely related to the ``Judge``.
+With ``option 2``, we stand a higher chance of success as the ``Judge`` and "downstream" routines must be able to receive and read the user input first before it could determine if a key is valid or invalid.
 
-#### There is a problem
+The function that attempts to access or read the unlock code stored in memory, soon after the ``SUBMIT`` button is clicked which initiates the activation process, is very likely to be closely related to the ``Judge``.
+
+### ♦️ Prerequisite for Option 2
 In order to locate the user input in memory, we need the application to be in frozen state. This means that we'll need to set a breakpoint somewhere in Puzzleball 3D's code which triggers as soon as the ``SUBMIT`` button is clicked and definitely before the ``Judge`` is able to get its hands on it.
 
 This is where the unit testing function, ``unittest_ValidateUnlockCode`` comes in. While this routine was never utilized by Puzzleball 3D during normal operation, I wondered if there existed a similar looking function somewhere in the main .EXE or DLL file that performed the logic for activation.
