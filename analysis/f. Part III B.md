@@ -48,26 +48,38 @@ We know that the functions, ``FUN_10018172`` and ``FUN_100180d1``, in ``unittest
 
 I searched for references to these functions and was able to find a parent routine in ``ra.dll`` called ``FUN_1000B555`` that contained calls to both of these functions.
 
-<img width="838" height="631" alt="{6B73357F-7A24-43D3-AB18-138F26365ACA}" src="https://github.com/user-attachments/assets/57906347-4dd9-4cde-8c2c-4b27d795459f" />
+<img width="1218" height="627" alt="1000b555 assembly" src="https://github.com/user-attachments/assets/74b1192a-1c82-46cf-bbb2-13a7f4ad8022" />
 
 After setting a breakpoint at the beginning of ``FUN_1000B555``, I launched Puzzleball 3D again through WinDbg and attempted to go through the activation process. Fortunately, clicking on the ``SUBMIT`` button now causes the application to freeze, indicating that the breakpoint was indeed hit in WinDbg.
 
 <img width="1259" height="720" alt="windbg bp" src="https://github.com/user-attachments/assets/5cd09570-293a-4272-a31d-16c413079e8b" />
 
-### ♦️ Testing with WinDbg
-First, we set a breakpoint on the ``ReadFile`` API with the command ``bp kernel32!ReadFile``. This should cause the application to "freeze" when we click the ``SUBMIT`` button.
+### ♦️ Hypothesis
+Now that we have a reliable breakpoint to use for "freezing" the application right at the start of what is likely the activation/validation routine, we can most likely work our way to the ``Judge`` with some help from WinDbg.
 
-This is because the error strings are located in ``Arcade.dat``, which is an external file that needs to be read through ``ReadFile``.
+If we carry out the testing outlined in ``Option 2`` and find any overlap in function calls/references between this and ``FUN_1000B555``, then we have found the ``Judge`` or a function very close to it.
 
-We then attempt to locate the entered user input by using the command ``s -a 0 1?80000000 "CAKE"``. This command basically searches the entire memory space for the ASCII string "CAKE" which is unmistakable.
+## Option 2 Test with WinDbg
+First, we set a breakpoint on ``FUN_1000B555``. This should cause the application to "freeze" when we click the ``SUBMIT`` button after entering an unlock code as demonstrated previously.
 
-<img width="615" height="219" alt="image" src="https://github.com/user-attachments/assets/95e5b57b-a642-4077-9fef-8ee1f5ddf068" />
+<img width="716" height="137" alt="CAKE input" src="https://github.com/user-attachments/assets/fb3889cc-4dfd-4049-aacc-4f0cb7015f3b" />
 
-We then set hardware breakpoints on all the memory addresses found where the user input resides. In this case, it was addresses, ``0248b081``, ``051e66d1``, and ``0520aac1``.
+We then attempt to locate the entered user input by using the command ``s -a 0 1?80000000 "CAKE"``. This command basically searches the entire memory space for the ASCII string "CAKE", which is a word I decided to use to make the result obvious and unmistakable, so that we don't accidentally look for similar but unrelated strings.
 
-We then step forward in WinDbg to see which breakpoint gets hit and look at the call stack.
+<img width="615" height="219" alt="cake windbg" src="https://github.com/user-attachments/assets/24e4b9e0-db08-4347-891b-cce54937d66f" />
+
+We then set hardware breakpoints on all the memory addresses found where the user input resides and/or has been copied to. In this case, it was addresses, ``0248b081``, ``051e66d1``, and ``0520aac1``.
+
+We then step forward in WinDbg to see which breakpoint gets hit and look at the call stack; paying special attention to the return address column.
 
 <img width="529" height="423" alt="image" src="https://github.com/user-attachments/assets/3cdae877-3e57-49ae-ba88-109d6ea6071f" />
+
+The return address for the item on top of the stack is ``1000B565`` which is actually located in ``FUN_1000B555``. If we look at the second item on the call stack, we see the return address, ``10002915`` which is located in ``FUN_1000286C``, the parent function of ``FUN_1000B555``.
+
+<img width="933" height="137" alt="290c" src="https://github.com/user-attachments/assets/2c8ed547-cb98-4139-9553-e55a16b30bbe" />
+
+The address ``10002915`` is right where the TEST instruction is. This indicates that the value in the AL register acts as a "flag"
+
 
 The function, ``radll_GetUnlockCode`` seems highly likely to be the function that validates the user input, and hence, is the Judge.
 
