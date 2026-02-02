@@ -36,14 +36,23 @@ With ``option 2``, we stand a higher chance of success as the ``Judge`` and "dow
 
 The function that attempts to access or read the unlock code stored in memory, soon after the ``SUBMIT`` button is clicked which initiates the activation process, is very likely to be closely related to the ``Judge``.
 
-### ♦️ Prerequisite for Option 2
-In order to locate the user input in memory, we need the application to be in frozen state. This means that we'll need to set a breakpoint somewhere in Puzzleball 3D's code which triggers as soon as the ``SUBMIT`` button is clicked and definitely before the ``Judge`` is able to get its hands on it.
+### ♦️ Extra Consideration for Option 2
+The second method actually has a prerequisite in that we need the application to be in a frozen state before we could sift through the memory for the user input. This means that we'll need to set a breakpoint somewhere in Puzzleball 3D's code which triggers as soon as the ``SUBMIT`` button is clicked and definitely before the ``Judge`` is able to get its hands on the unlock code.
 
-This is where the unit testing function, ``unittest_ValidateUnlockCode`` comes in. While this routine was never utilized by Puzzleball 3D during normal operation, I wondered if there existed a similar looking function somewhere in the main .EXE or DLL file that performed the logic for activation.
+This is where the earlier unit testing function, ``unittest_ValidateUnlockCode`` comes in.
+In Part I, we confirmed that this function is never ran through or utilized by Puzzleball 3D during normal operation. But function blocks for unit testing often take a similar form to the "real" routine that is actively used.
 
-We know that ``FUN_10018172`` and ``FUN_100180d1`` are the functions that likely perform some form of processing on an input in order to validate it.
+<img width="1280" height="722" alt="the 2 functions" src="https://github.com/user-attachments/assets/c9265719-2080-4e0d-bb19-d4a47d498de3" />
 
-I searched for XREFs to these functions and was able to find a function in ``ra.dll`` called ``FUN_1000B555``.
+We know that the functions, ``FUN_10018172`` and ``FUN_100180d1``, in ``unittest_ValidateUnlockCode`` likely perform some form of processing on an input in order to validate it. These are functions that serve a specific purpose and are likely only found in one other routine if any.
+
+I searched for references to these functions and was able to find a parent routine in ``ra.dll`` called ``FUN_1000B555`` that contained calls to both of these functions.
+
+<img width="838" height="631" alt="{6B73357F-7A24-43D3-AB18-138F26365ACA}" src="https://github.com/user-attachments/assets/57906347-4dd9-4cde-8c2c-4b27d795459f" />
+
+After setting a breakpoint at the beginning of ``FUN_1000B555``, I launched Puzzleball 3D again through WinDbg and attempted to go through the activation process. Fortunately, clicking on the ``SUBMIT`` button now causes the application to freeze, indicating that the breakpoint was indeed hit in WinDbg.
+
+
 
 ### ♦️ Testing with WinDbg
 First, we set a breakpoint on the ``ReadFile`` API with the command ``bp kernel32!ReadFile``. This should cause the application to "freeze" when we click the ``SUBMIT`` button.
