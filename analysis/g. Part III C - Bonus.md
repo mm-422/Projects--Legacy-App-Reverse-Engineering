@@ -131,10 +131,25 @@ Byte Sequence in Arcade.dat
 - Very similar to standard EOCD but has different "initials".
 ```
 
-Was the application looking for this different byte sequence instead? To confirm this, I searched through the main .EXE in Ghidra for any references to these byte sequences and found the function ``FUN_10083F39`` which contained CMP instructions with values like ``0x6054b50``, ``0x403b50``, ``0x2014b50``, and ``0x6054552``.
+Was the application looking for this different byte sequence instead? To confirm this, I searched through the main .EXE in Ghidra for any references to these byte sequences and found the function ``FUN_10083F39`` which is an extremely large routine containing CMP instructions with values like ``0x6054b50``, ``0x403b50``, ``0x2014b50``, and ``0x6054552``.
 
+<img width="729" height="290" alt="zip function" src="https://github.com/user-attachments/assets/f36abdf1-469b-4f17-b03b-4da2af5a0611" />
 
+Considering that bytes are stored in reverse order in 32-bit assembly, 0x6054b50 translates to 50 4b 05 06. This is "PK\x05\x06" in ASCII, which is the byte sequence for the EOCD or End of Central Directory section in a ZIP file's structure.
 
+The standard EOCD byte sequence was not found in Arcade.dat, probably because the dev replaced "PK" (initials for Phil Katz, founder of ZIP format) with "RE" (likely referencing company name or "Resource Editor").
+
+Therefore, to allow the application to read the file properly, we need to revisit the ZIP binary in HxD and make extra modifications.
+
+<img width="635" height="95" alt="eocd pointer" src="https://github.com/user-attachments/assets/2767d23f-7226-4802-bf3e-c421a8f19f9a" />
+
+There is an extra set of bytes at the end which don't seem to be any standard indicator. Converting this to decimal gives us the value 496265 which aligns with the start of the header of the first file read by the main application. This obviously must be shifted forward by an extra byte in order to fix the starting pointer.
+
+Changing this to 8a 92 07 00 which translates to 496266, and then patching the file, the app was able to call ReadFile successfully on all files contained in the ZIP (Arcade.dat) and worked without issues.
+
+We can now observe the fixed typo in the sub-menu.
+
+<img width="655" height="155" alt="finalmsg" src="https://github.com/user-attachments/assets/6e36c6cd-21ff-45d3-9a5c-dba853981f1c" />
 
 
 
