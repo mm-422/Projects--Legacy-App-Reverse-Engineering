@@ -85,6 +85,7 @@ This is because the process of adding bytes will shift the internal offsets forw
 
 This also tracks with why overwriting a byte, like changing "compter" to "computr", worked without issues. This is because this modification preserves the file header positions and maintains the byte offsets.
 
+### ♦️ Hypothesis
 
 
 
