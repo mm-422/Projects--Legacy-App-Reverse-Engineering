@@ -81,15 +81,60 @@ Just like how a website's html code consists of sections like the header, body, 
 ### ♦️ Why Arcade.dat Became Corrupted
 Based on what we know about the typical structure of a ZIP archive, we can see how simply adding arbitrary bytes with a text editor like Notepad will cause the internal map to get corrupted.
 
-This is because the process of adding bytes will shift the internal offsets forward. This causes a mismatch between where the header of the files are and the byte offsets listed in the Central Directory.
+This is because the process of adding bytes will shift the file header positions forward without updating them in the Central Directory. This mismatch means that the application will be unable to locate the files in the archive properly, and either reports them as being corrupted or missing, hence the "Fatal Not Found" error.
 
-This also tracks with why overwriting a byte, like changing "compter" to "computr", worked without issues. This is because this modification preserves the file header positions and maintains the byte offsets.
+This also tracks with why overwriting a byte instead of adding an extra one, like changing the word "compter" to "computr", worked without issues. This is because the file header positions are preserved through this modification and the byte offsets in the Central Directory remain true.
 
 ### ♦️ Hypothesis
-asdsad
+If we could locate the Central Directory of ``Arcade.dat`` and manually update the byte offsets, the application should be able to parse the ZIP file's structure and show us the modified or fixed word on the launcher sub-menu without issues.
 
 ## Testing with HxD
-asdasd
+First, we locate the mispelled word in ``Arcade.dat`` through HxD.
+
+<img width="621" height="501" alt="compter in HxD" src="https://github.com/user-attachments/assets/e135af04-c136-4009-820a-dd4205417f2f" />
+
+We then add the missing byte or vowel and then move to locate the EOCD, in order to start manually updating the byte offsets. However, we encounter a problem.
+
+<img width="623" height="123" alt="eocd missing" src="https://github.com/user-attachments/assets/1f399263-fd8b-4fd6-8251-1eaa5f45dec3" />
+
+The sequence for the EOCD, ``50 4B 05 06``, is not present here. The closest set of bytes is ``52 45 05 06`` but this is not a standard indicator for any part of a ZIP file's structure.
+
+How was the application able to parse through the ZIP archive without an EOCD?<br>
+To uncover this bit of critical information, I relied on Procmon once again to observe the loading behavior for ``Arcade.dat``.
+
+<img width="819" height="343" alt="procmon offset comparison" src="https://github.com/user-attachments/assets/39d2f8ae-929f-4501-bc0e-22db1525ec54" />
+
+It should be noted that the sequence for the ReadFile operations were exactly the same from run to run when launching Puzzleball 3D with the original ``Arcade.dat`` file.
+
+The first offset is at byte 508,748 which matches exactly with the Windows reported size for ``Arcade.dat``.
+
+We then see the following read operations performed at specific offsets, beginning with byte 496,269. Over 130 read operations are performed on Arcade.dat before the application loads fully.
+
+
+With the modified ``Arcade.dat`` however, we can already see some discrepancies. While the first ReadFile operation starts at the correct offset ― byte 508,749 which is an extra byte due to the extra vowel added to "compter" ― the following ReadFile operations begin "disintegrating" after byte 496,269.
+
+This indicates that the application cannot parse ``Arcade.dat`` properly likely due to improper offsets. But without an EOCD, how does the app know to start at byte 496,269?
+
+I then went back to the end of the ZIP archive's binary to compare the byte sequence found earlier to what an expected EOCD should be.
+
+Standard EOCD
+```
+- 50 4B 05 06
+- stands for PK\x05\x06
+- PK are the initials for Phil Katz, founder of the ZIP format.
+```
+
+Byte Sequence in Arcade.dat
+```
+- 52 45 05 06
+- stands for RE\x05\x06
+- Very similar to standard EOCD but has different "initials".
+```
+
+Was the application looking for this different byte sequence instead? To confirm this, I searched through the main .EXE in Ghidra for any references to these byte sequences and found the function ``FUN_10083F39`` which contained CMP instructions with values like ``0x6054b50``, ``0x403b50``, ``0x2014b50``, and ``0x6054552``.
+
+
+
 
 
 
