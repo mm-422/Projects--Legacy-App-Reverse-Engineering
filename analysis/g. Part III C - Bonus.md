@@ -119,14 +119,14 @@ This indicates that the application cannot parse ``Arcade.dat`` properly and thi
 
 I then went back to the end of the ZIP archive's binary to compare the byte sequence found earlier to what an expected EOCD should be.
 
-Standard EOCD
+#### **Standard EOCD**
 ```
 - 50 4B 05 06
 - stands for PK\x05\x06
 - PK are the initials for Phil Katz, founder of the ZIP format.
 ```
 
-Byte Sequence in Arcade.dat
+#### **Byte Sequence in Arcade.dat**
 ```
 - 52 45 05 06
 - stands for RE\x05\x06
