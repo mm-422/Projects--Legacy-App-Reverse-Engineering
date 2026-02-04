@@ -3,7 +3,7 @@
 Tools and techniques are only means to an end,
   Understanding the intent behind an application's design is the ultimate goal.
 ```
-Multiple times throughout the course of this project, the importance of understanding how an application behaves through gathering historical context and correlating that information with data gained from testing, was clearly demonstrated.
+Multiple times throughout the course of this project, the importance of understanding how an application behaves through gathering historical context and correlating that information with data gained from careful testing, was clearly demonstrated.
 
 Often times, RE projects start with a quick search for an "entry point", followed by simple hacks to flip a result or outcome, and then ending with a fully unlocked or unrestricted version of an application.
 
@@ -15,4 +15,6 @@ In the case of the activation mechanism, it was when concepts like "The Judge" a
 
 ``Arcade.dat`` also presented its own set of curveballs. One of them being the integrity-check mechanisms lined with duplicated strings in both the main executable and the primary DLL file, ``ra.dll``. A simple hex edit in the end was also thwarted by a proprietary EOCD sequence, which was discovered with the help of a behavioral analysis tool, Procmon.
 
-While today's tools are very advanced and do a lot of heavy lifting, the mind of the original creator is the most valuable asset one could possess when reverse engineering the associated application. This is of course, not quite possible, so the next best thing is to reconstruct what intents and considerations may have gone in to the building of an application by careful use of tools and techniques to compile both historical and behavioral data.
+While today's tools are very advanced and do a lot of the heavy lifting, the mind of the original creator is the most valuable asset one could possess when reverse engineering an application.
+
+This is of course not quite possible to obtain. So the next best thing is to reconstruct what thoughts and considerations may have gone in to the building of an application by careful use of tools and techniques to compile the crucial historical and behavioral data.
