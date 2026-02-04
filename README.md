@@ -1,6 +1,22 @@
 # Revealing The Story 🕮
 > A reverse engineering project demonstrating the importance of behavioral analysis.
 
+## TOC
+1. [This README](https://github.com/mm-422/Projects--Legacy-App-Reverse-Engineering/edit/main/README.md)
+2. [Environment Setup](https://github.com/mm-422/Projects--Legacy-App-Reverse-Engineering/blob/main/environment-setup.md)
+3. [Tooling](https://github.com/mm-422/Projects--Legacy-App-Reverse-Engineering/blob/main/tooling.md)
+4. [Analysis](https://github.com/mm-422/Projects--Legacy-App-Reverse-Engineering/tree/main/analysis)
+	- [Prologue](https://github.com/mm-422/Projects--Legacy-App-Reverse-Engineering/blob/main/analysis/a.%20Prologue.md)
+	- [Part 1](https://github.com/mm-422/Projects--Legacy-App-Reverse-Engineering/blob/main/analysis/b.%20Part%20I.md)
+	- [Part 2a](https://github.com/mm-422/Projects--Legacy-App-Reverse-Engineering/blob/main/analysis/c.%20Part%20II%20A.md)
+	- [Part 2b](https://github.com/mm-422/Projects--Legacy-App-Reverse-Engineering/blob/main/analysis/c.%20Part%20II%20B.md)
+	- [Part 2c](https://github.com/mm-422/Projects--Legacy-App-Reverse-Engineering/blob/main/analysis/d.%20Part%20II%20C.md)
+	- [Part 3a](https://github.com/mm-422/Projects--Legacy-App-Reverse-Engineering/blob/main/analysis/e.%20Part%20III%20A.md)
+	- [Part 3b](https://github.com/mm-422/Projects--Legacy-App-Reverse-Engineering/blob/main/analysis/f.%20Part%20III%20B.md)
+	- [Part 3c](https://github.com/mm-422/Projects--Legacy-App-Reverse-Engineering/blob/main/analysis/g.%20Part%20III%20C%20-%20Bonus.md)
+5. [Artifacts](https://github.com/mm-422/Projects--Legacy-App-Reverse-Engineering/blob/main/artifacts/notes%26images.md)
+6. [Conclusion](https://github.com/mm-422/Projects--Legacy-App-Reverse-Engineering/blob/main/conclusions.md) 
+
 ## Overview 
 This project documents a thorough analysis of an early-2000s era application and its components by way of _**Reverse Engineering.**_ Aspects such as the authentication mechanism, file integrity checks, UI construction and more are covered.
 
