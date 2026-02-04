@@ -13,19 +13,19 @@ But as we'll see later, once "the story" of a particular application is uncovere
 While the original servers and publisher are no longer operational, for the sake of ethics, the exact name of this application and images of its components will be obfuscated as necessary.
 Hence, the video game app will be referred to as "Puzzleball 3D" throughout the case study.<br>
 
-### ֎ Project Goals
+## Project Goals
 - Analyze the structure and behavior of legacy authentication mechanisms.
 - Reverse engineer authentication logic with no source code or documentation.
 - Illustrate weaponization potential and relevant phases in a typical kill chain framework.<br>
 
-### ֎ Overall Plan
+## Overall Plan
 - Start with basic reconaissance to gather context and preliminary info for later analysis.
 - Apply static analysis methods to identify functions and algorithm patterns.
 - Move to dynamic analysis to observe application behavior.
 - Determine potential vulnerabities and attack vectors.
 - Document.
 
-### ֎ Scope & Ethical Considerations
+## Scope & Ethical Considerations
 - This project focuses on understanding mechanisms and applying methodology.
 - This project _**DOES NOT**_ distribute material that could encourage piracy.
 - The app for this project is available on the Internet Archive and other "abandonware sites".
@@ -33,14 +33,14 @@ Hence, the video game app will be referred to as "Puzzleball 3D" throughout the 
 - Any examples of weaponization potential is done under an educational lens.<br>
 <sup>_They won't really work in modern secured systems anyway!_</sup><br>
 
-### ֎ Technical Summary
+## Technical Summary
 - Observed application behavior with regard to user input.
 - Performed static & dynamic analysis on both the main .EXE and an auxiliary DLL.
 - Investigated file integrity checks within application's binary.
 - Identified validation logic and performed bypass.
 - Evaluated security weaknesses and weaponization potential.<br>
 
-### ֎ Tools Used
+## Tools Used
 - Disassembler ➠ Ghidra & x64dbg
 - Primary Debugger ➠ WinDbg
 - Process Inspection ➠ Procmon & Spy++
@@ -51,12 +51,12 @@ Hence, the video game app will be referred to as "Puzzleball 3D" throughout the 
     - GIMP, Notepad, and LibreOffice for mindmaps and notes.<br>
 - _All testing was performed in a controlled Windows 10 22H2 VM._<br>
 
-### ֎ Takeaways
+## Takeaways
 - Most if not all client-side validation is "doomed" with modern analysis and debugging tools.
 - Reverse engineering should focus on understanding behavior and intent first.
 - Clear documentation helps tremendously with prolonged debugging sessions.
 - Design oversights and security mistakes seen in a 20-year old app can still be seen today.<br>
 
-### ⚠︎ Disclaimer
+## Disclaimer
 This repository is provided for educational and research purposes only.
 No responsibility is taken for misuse of the information contained herein.
