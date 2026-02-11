@@ -1,4 +1,4 @@
-# Part III C
+# Part 3 Continued 2
 With the main goal achieved, I wanted to tie up loose ends by revisiting the "typo problem" to see if a refreshed approach could get me to a working solution this time. Just like with decoding the activation mechanism, I focused on gaining good understanding of the application's behavior with context from historical research first before applying any techniques and methodology.
 
 > GOAL: Fix the typo in Arcade.dat
