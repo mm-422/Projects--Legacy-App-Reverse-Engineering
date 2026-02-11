@@ -1,4 +1,4 @@
-# Part II C
+# Part 2C - Decoding Arcade.dat
 With the integrity checks for the main executable and the DLL both bypassed, Puzzleball 3D's files should now be free to modify without worry of breaking app functionality. To confirm this, we can revisit the previous attempt to narrow down the source for the ``Fatal Not Found`` error dialog's text elements.
 
 <img width="445" height="446" alt="list sucks" src="https://github.com/user-attachments/assets/bb3eb745-96b8-427f-bb23-20dbb9423acd" />
