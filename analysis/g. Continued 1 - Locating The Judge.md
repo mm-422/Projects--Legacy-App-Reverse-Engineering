@@ -1,4 +1,4 @@
-# Part III B
+# Part 3 Continued 1
 > GOAL: Locate the Judge.
 
 As a quick reminder, the ``Judge`` will be a routine in the program that:
