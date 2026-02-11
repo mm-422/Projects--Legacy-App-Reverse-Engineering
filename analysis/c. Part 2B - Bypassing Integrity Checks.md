@@ -1,4 +1,4 @@
-# c. Part 2 continued - Bypassing Integrity Checks
+# c. Part 2B - Bypassing Integrity Checks
 The complications I encountered throughout trying to decode Puzzleball 3D with its relatively opaque routines and unconventional design led me to take a few steps back to re-evaluate my approach.
 
 I decided to pick a simpler part of the application to modify this time in order to **gather more information** on how it responds to analysis and debugging tools. After the previous failures, I wanted to eliminate any possible compatibility issues and ensure there were no "invisible" obfuscation steps that made using tools more challenging than necessary.
