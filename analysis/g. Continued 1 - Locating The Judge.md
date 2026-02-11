@@ -95,7 +95,7 @@ A TEST instruction is essentially a bitwise AND operation that temporarily compu
 
 This means that the application's flow takes the path towards the ``LAB_10002969`` sub-routine when supplied with an invalid unlock code.
 
-### The Judge
+### ♦️ The Judge
 From the previous call stack, going further upstream from ``FUN_1000286C`` is not possible with static analysis alone. This is because there is only one XREF point for this function and it is a memory address. Any part of the program can point to this address dynamically during runtime.
 
 <img width="639" height="180" alt="xref286c" src="https://github.com/user-attachments/assets/88c7a3a9-9c00-4ada-9bcc-cfd02d60a823" />
