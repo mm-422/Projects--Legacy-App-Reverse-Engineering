@@ -1,4 +1,4 @@
-# Part III A
+# Part 3 - The Story
 In the previous part, we saw how methodology alone could become insufficient when put up against a complex routine with little to no context. What worked well for uncovering the earlier validation mechanisms, became quickly diminished in the face of a relatively opaque function that made even brute-forcing unfeasible.
 
 We should remember that **no tool or technique** in Reverse Engineering is a _one-size-fits-all_ type of solution. They are simply a means to an end, which is to piece together the original developer's intent behind the design of an application.
