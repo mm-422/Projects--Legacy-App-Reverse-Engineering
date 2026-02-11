@@ -1,5 +1,5 @@
 ## Table of Contents
-1. [This README](https://github.com/mm-422/Projects--Legacy-App-Reverse-Engineering/edit/main/README.md)
+1. [This README](https://github.com/mm-422/Projects--Legacy-App-Reverse-Engineering?tab=readme-ov-file)
 2. [Environment Setup](https://github.com/mm-422/Projects--Legacy-App-Reverse-Engineering/blob/main/environment-setup.md)
 3. [Tooling](https://github.com/mm-422/Projects--Legacy-App-Reverse-Engineering/blob/main/tooling.md)
 4. [Analysis](https://github.com/mm-422/Projects--Legacy-App-Reverse-Engineering/tree/main/analysis)
