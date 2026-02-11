@@ -200,7 +200,7 @@ Functions ``FUN_0040283B`` and ``FUN_00402913`` are called to perform some proce
 
 This result may be the value that indicates the expected or computed "CRC state".
 
-### ✦ Hypothesis
+### ♦️ Hypothesis
 Since ``FUN_004027C6`` seems to compute some sort of hash or value based on a "static list" of items and then stores this result in ``EDI+4``, and then in EAX, before it gets passed back to the parent, ``FUN_00401D0B``, theoretically, editing the value of EAX right before the last step, to something matching an original and untampered version of the main executable, should allow us to bypass the "Game File Are Corrupt" check.
 
 ## WinDbg Testing
@@ -254,7 +254,7 @@ Examining the first function call here to ``FUN_00407160``, I discovered that it
 
 Delving into the process of attempting to crack the above hashing algorithms may have been an even more daunting task. But if we look closer at the above sub-rountine, we can see that there is a TEST intruction right before a jump or JNZ, and critically, a call to the ``Kernel32.dll`` module for the FreeLibrary function. This likely meant that the call to ``FUN_00407160`` with all its crypto-related modules only served to perform hash and signature related functions on ``ra.dll`` and the process of rejecting or unloading the actual DLL was performed farther down the assembly.
 
-### ✦ Hypothesis
+### ♦️ Hypothesis
 <img width="1280" height="720" alt="patching JNZ" src="https://github.com/user-attachments/assets/8d061906-e3c0-4ede-be42-6d94d3a62325" />
 
 Patching the assembly here to return an expected non-zero value right before the JNZ instruction might be sufficient. This might force the application's flow to "escape" the following lines of assembly in this sub-routine that unload the DLL and move to contruct the error message found in the log file.
