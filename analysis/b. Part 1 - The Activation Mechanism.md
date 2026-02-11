@@ -1,4 +1,4 @@
-# Part I
+# Part 1 - Activation Mechanism
 > GOAL: Decode the activation mechanism.
 
 I began the analysis by first making simple observations of the application's features. While the initial goal was to decode the activation mechanism, I still had to establish whether that was actually feasible with Puzzleball 3D. Below are the findings:
