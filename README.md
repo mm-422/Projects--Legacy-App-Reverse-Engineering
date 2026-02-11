@@ -4,15 +4,16 @@
 3. [Tooling](https://github.com/mm-422/Projects--Legacy-App-Reverse-Engineering/blob/main/tooling.md)
 4. [Analysis](https://github.com/mm-422/Projects--Legacy-App-Reverse-Engineering/tree/main/analysis)
 	- [Prologue](https://github.com/mm-422/Projects--Legacy-App-Reverse-Engineering/blob/main/analysis/a.%20Prologue.md)
-	- [Part 1](https://github.com/mm-422/Projects--Legacy-App-Reverse-Engineering/blob/main/analysis/b.%20Part%20I.md)
-	- [Part 2a](https://github.com/mm-422/Projects--Legacy-App-Reverse-Engineering/blob/main/analysis/c.%20Part%20II%20A.md)
-	- [Part 2b](https://github.com/mm-422/Projects--Legacy-App-Reverse-Engineering/blob/main/analysis/c.%20Part%20II%20B.md)
-	- [Part 2c](https://github.com/mm-422/Projects--Legacy-App-Reverse-Engineering/blob/main/analysis/d.%20Part%20II%20C.md)
-	- [Part 3a](https://github.com/mm-422/Projects--Legacy-App-Reverse-Engineering/blob/main/analysis/e.%20Part%20III%20A.md)
-	- [Part 3b](https://github.com/mm-422/Projects--Legacy-App-Reverse-Engineering/blob/main/analysis/f.%20Part%20III%20B.md)
-	- [Part 3c](https://github.com/mm-422/Projects--Legacy-App-Reverse-Engineering/blob/main/analysis/g.%20Part%20III%20C%20-%20Bonus.md)
-5. [Artifacts](https://github.com/mm-422/Projects--Legacy-App-Reverse-Engineering/blob/main/artifacts/notes%26images.md)
-6. [Conclusion](https://github.com/mm-422/Projects--Legacy-App-Reverse-Engineering/blob/main/conclusions.md)
+	- [Part 1 - Activation Mechanism](https://github.com/mm-422/Projects--Legacy-App-Reverse-Engineering/blob/main/analysis/b.%20Part%20I.md)
+	- [Part 2 - Tracing User Input](https://github.com/mm-422/Projects--Legacy-App-Reverse-Engineering/blob/main/analysis/c.%20Part%20II%20A.md)
+	- [Continued 1 - Bypassing Integrity Checks](https://github.com/mm-422/Projects--Legacy-App-Reverse-Engineering/blob/main/analysis/c.%20Part%20II%20B.md)
+	- [Continued 2 - Decoding Arcade.dat](https://github.com/mm-422/Projects--Legacy-App-Reverse-Engineering/blob/main/analysis/d.%20Part%20II%20C.md)
+	- [Part 3 - The Story](https://github.com/mm-422/Projects--Legacy-App-Reverse-Engineering/blob/main/analysis/e.%20Part%20III%20A.md)
+	- [Continued 1 - Locating The Judge](https://github.com/mm-422/Projects--Legacy-App-Reverse-Engineering/blob/main/analysis/f.%20Part%20III%20B.md)
+	- [Continued 2 - Bonus](https://github.com/mm-422/Projects--Legacy-App-Reverse-Engineering/blob/main/analysis/g.%20Part%20III%20C%20-%20Bonus.md)
+5. [Conclusion](https://github.com/mm-422/Projects--Legacy-App-Reverse-Engineering/blob/main/conclusions.md)
+6. [Appendix w/ Additional Artifacts](https://github.com/mm-422/Projects--Legacy-App-Reverse-Engineering/blob/main/artifacts/notes%26images.md)
+
 
 # Executive Summary
 > This repository details a reverse engineering project featuring a legacy software application from the early 2000s.
